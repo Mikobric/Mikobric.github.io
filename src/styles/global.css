@@ -411,14 +411,16 @@ a {
 
 /* ----------------------------------------------------------- print wipe */
 
+/* Generous negative insets so overflowing children (the rotated stamp
+   above MAKER) are not clipped once the wipe finishes. */
 .wipe {
-  clip-path: inset(-5% 100% -5% 0);
+  clip-path: inset(-45% 100% -20% 0);
   animation: print-wipe 0.9s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   animation-delay: var(--wipe-delay, 0s);
 }
 
 @keyframes print-wipe {
-  to { clip-path: inset(-5% 0% -5% 0); }
+  to { clip-path: inset(-45% -25% -20% 0); }
 }
 
 @media (prefers-reduced-motion: reduce) {
