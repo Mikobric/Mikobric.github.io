@@ -13,6 +13,22 @@ import Ordering from '../components/Ordering.astro';
     <Description />
     <Works />
     <Characteristics />
+    <div class="tape" aria-hidden="true">
+      {
+        [0, 1].map(() => (
+          <div class="tape__strip">
+            <span>ACCEPTING COMMISSIONS</span>
+            <span class="acc">✦</span>
+            <span>HARDWARE / FIRMWARE / RF</span>
+            <span class="acc">✦</span>
+            <span>EST. 2026 — POLAND</span>
+            <span class="acc">✦</span>
+            <span>DOC NO. MIKO-2026</span>
+            <span class="acc">✦</span>
+          </div>
+        ))
+      }
+    </div>
     <Ordering />
   </main>
 </Base>

@@ -28,14 +28,22 @@ const rows = [
         </div>
       ))
     }
-    <a class="btn-accent" href="mailto:byniutek@gmail.com">TRANSMIT&nbsp;&nbsp;↗</a>
+    <a class="btn-accent" href="mailto:byniutek@gmail.com"
+      >TRANSMIT&nbsp;&nbsp;↗&nbsp;<span class="blink">▮</span></a
+    >
   </div>
 
-  <p class="order__legal" data-reveal>
-    © 2026 MIKO — INFORMATION FURNISHED IS BELIEVED TO BE ACCURATE AND RELIABLE. HOWEVER, NO
-    RESPONSIBILITY IS ASSUMED FOR ITS USE. SPECIFICATIONS SUBJECT TO CHANGE WITHOUT NOTICE.
-    MADE IN PL.
-  </p>
+  <div class="order__bottom" data-reveal>
+    <p class="order__legal">
+      © 2026 MIKO — INFORMATION FURNISHED IS BELIEVED TO BE ACCURATE AND RELIABLE. HOWEVER, NO
+      RESPONSIBILITY IS ASSUMED FOR ITS USE. SPECIFICATIONS SUBJECT TO CHANGE WITHOUT NOTICE.
+      MADE IN PL.
+    </p>
+    <div class="order__barcode">
+      <span class="barcode" aria-hidden="true"></span>
+      <span class="label">MIKO-2026-PL</span>
+    </div>
+  </div>
 </section>
 
 <style>
@@ -66,12 +74,31 @@ const rows = [
     text-decoration: underline;
   }
 
+  .order__bottom {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 28px;
+    margin-top: 26px;
+    max-width: 980px;
+  }
+
   .order__legal {
-    margin-top: 22px;
-    max-width: 720px;
+    flex: 1;
+    min-width: 280px;
     font-size: 10px;
     letter-spacing: 0.06em;
     color: var(--ink-soft);
     text-transform: uppercase;
+  }
+
+  .order__barcode {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .order__barcode .label {
+    font-size: 9px;
   }
 </style>

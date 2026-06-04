@@ -65,7 +65,7 @@ const capabilities = [
         <div class="caps__row" data-reveal style={`--reveal-delay: ${i * 0.06}s`}>
           <span class="caps__index">{String(i + 1).padStart(2, '0')}</span>
           <span class="caps__name display">{cap}</span>
-          <span class="caps__check" aria-hidden="true">▣</span>
+          <span class="caps__check" aria-hidden="true"></span>
         </div>
       ))
     }
@@ -116,13 +116,21 @@ const capabilities = [
   }
 
   .caps__name {
-    font-size: clamp(26px, 4.5vw, 44px);
+    font-size: clamp(32px, 6vw, 58px);
   }
 
   .caps__check {
     margin-left: auto;
-    font-size: 18px;
+    font-size: 20px;
     color: var(--ink-soft);
     transition: color 0.25s;
+  }
+
+  .caps__check::before {
+    content: '▢';
+  }
+
+  .caps__row:hover .caps__check::before {
+    content: '▣';
   }
 </style>

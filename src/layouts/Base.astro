@@ -47,8 +47,16 @@ const nav = [
     <span class="regmark regmark--bl" aria-hidden="true"></span>
     <span class="regmark regmark--br" aria-hidden="true"></span>
 
+    <div class="xhair" aria-hidden="true">
+      <span class="xhair__v"></span>
+      <span class="xhair__h"></span>
+      <span class="xhair__dot"></span>
+      <span class="xhair__coords"></span>
+    </div>
+
     <div class="doc-strip">
       <span class="doc-strip__brand">MIKO®</span>
+      <span class="doc-strip__clock" id="doc-clock" aria-hidden="true"></span>
       <span class="doc-strip__meta">
         DOC NO. {docNo}<span class="doc-strip__extra">&nbsp;&nbsp;|&nbsp;&nbsp;REV. A&nbsp;&nbsp;|&nbsp;&nbsp;{sheet}</span>
       </span>
@@ -63,12 +71,13 @@ const nav = [
         {
           nav.map((item) => (
             <a href={item.href} class="masthead__link label">
-              <span class="label--accent">{item.no}</span> {item.label}
+              <span class="label--accent">{item.no}</span> <span data-scramble>{item.label}</span>
             </a>
           ))
         }
       </nav>
       <a class="masthead__cta" href="mailto:byniutek@gmail.com">ORDER.SYS</a>
+      <span class="masthead__progress" id="read-progress" aria-hidden="true"></span>
     </header>
 
     <slot />
@@ -115,6 +124,84 @@ const nav = [
         { threshold: 0.6 }
       );
       document.querySelectorAll('[data-count]').forEach((el) => counterIo.observe(el));
+
+      const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
+      const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      // CAD crosshair cursor with live coordinates.
+      const xhair = document.querySelector<HTMLElement>('.xhair');
+      if (xhair && fine) {
+        const v = xhair.querySelector<HTMLElement>('.xhair__v')!;
+        const h = xhair.querySelector<HTMLElement>('.xhair__h')!;
+        const dot = xhair.querySelector<HTMLElement>('.xhair__dot')!;
+        const coords = xhair.querySelector<HTMLElement>('.xhair__coords')!;
+        addEventListener('mousemove', (e) => {
+          v.style.transform = `translateX(${e.clientX}px)`;
+          h.style.transform = `translateY(${e.clientY}px)`;
+          dot.style.left = `${e.clientX}px`;
+          dot.style.top = `${e.clientY}px`;
+          coords.style.left = `${e.clientX}px`;
+          coords.style.top = `${e.clientY}px`;
+          coords.textContent = xhair.classList.contains('xhair--link')
+            ? '[ ENGAGE ]'
+            : `X.${String(e.clientX).padStart(4, '0')} Y.${String(e.clientY).padStart(4, '0')}`;
+        });
+        document.querySelectorAll('a, button').forEach((el) => {
+          el.addEventListener('mouseenter', () => xhair.classList.add('xhair--link'));
+          el.addEventListener('mouseleave', () => xhair.classList.remove('xhair--link'));
+        });
+      }
+
+      // Live clock in the document strip.
+      const clock = document.getElementById('doc-clock');
+      if (clock) {
+        const tick = () => {
+          const now = new Date();
+          clock.textContent = `T ${now.toTimeString().slice(0, 8)} LOCAL`;
+        };
+        tick();
+        setInterval(tick, 1000);
+      }
+
+      // Reading progress under the masthead.
+      const progress = document.getElementById('read-progress');
+      if (progress) {
+        const update = () => {
+          const max = document.documentElement.scrollHeight - innerHeight;
+          progress.style.width = `${max > 0 ? (scrollY / max) * 100 : 0}%`;
+        };
+        addEventListener('scroll', update, { passive: true });
+        update();
+      }
+
+      // Text scramble on hover for [data-scramble].
+      if (fine && !calm) {
+        const GLYPHS = '▓▒░<>/=+#*0123456789';
+        document.querySelectorAll<HTMLElement>('[data-scramble]').forEach((el) => {
+          const original = el.textContent ?? '';
+          let frame = 0;
+          let raf = 0;
+          const run = () => {
+            frame++;
+            const reveal = Math.floor(frame / 2);
+            el.textContent = original
+              .split('')
+              .map((ch, i) =>
+                ch === ' ' || i < reveal
+                  ? ch
+                  : GLYPHS[Math.floor(Math.random() * GLYPHS.length)]
+              )
+              .join('');
+            if (reveal < original.length) raf = requestAnimationFrame(run);
+            else el.textContent = original;
+          };
+          el.closest('a, button, [data-scramble-host]')?.addEventListener('mouseenter', () => {
+            cancelAnimationFrame(raf);
+            frame = 0;
+            run();
+          });
+        });
+      }
     </script>
 
     <style>
@@ -150,6 +237,17 @@ const nav = [
         }
       }
 
+      .doc-strip__clock {
+        display: none;
+        font-variant-numeric: tabular-nums;
+      }
+
+      @media (min-width: 900px) {
+        .doc-strip__clock {
+          display: inline;
+        }
+      }
+
       .masthead {
         position: sticky;
         top: 0;
@@ -160,6 +258,16 @@ const nav = [
         padding: 14px var(--gutter);
         background: var(--paper);
         border-bottom: 2px solid var(--rule);
+      }
+
+      .masthead__progress {
+        position: absolute;
+        left: 0;
+        bottom: -2px;
+        height: 2px;
+        width: 0%;
+        background: var(--accent);
+        z-index: 1;
       }
 
       .masthead__brand {
