@@ -1,0 +1,224 @@
+---
+import { projects } from '../data/projects';
+---
+
+<section class="works wrap" id="works">
+  <h2 class="works__heading" data-reveal>
+    <span class="display works__heading-line">SELECTED</span>
+    <span class="works__heading-row">
+      <span class="display outline works__heading-line">WORKS</span>
+      <span class="display works__count glow">({String(projects.length).padStart(2, '0')})</span>
+    </span>
+  </h2>
+
+  <div class="works__list">
+    {
+      projects.map((project) => (
+        <a
+          class="card pressable"
+          href={`/works/${project.id}/`}
+          data-reveal
+          style={`--c0:${project.palette[0]}; --c1:${project.palette[1]};`}
+        >
+          <div class="card__art mesh" aria-hidden="true" />
+          <div class="card__shade" aria-hidden="true" />
+          <span class="display outline--accent card__index" aria-hidden="true">
+            {project.index}
+          </span>
+
+          <div class="card__top">
+            <span class="label">{project.year}</span>
+            <span class={`pill ${project.status === 'LIVE' ? 'pill--live' : ''}`}>
+              {project.status}
+            </span>
+          </div>
+
+          <div class="card__bottom">
+            <h3 class="display card__title">{project.title}</h3>
+            <p class="label card__subtitle">{project.subtitle}</p>
+            <div class="card__footer">
+              <span class="card__tags label label--ink">
+                {project.tags.slice(0, 3).map((t) => `[ ${t} ]`).join('  ')}
+              </span>
+              <span class="card__arrow" aria-hidden="true">↗</span>
+            </div>
+          </div>
+
+          <span class="card__line" aria-hidden="true" />
+        </a>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .works {
+    padding-top: 48px;
+  }
+
+  .works__heading {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 28px;
+  }
+
+  .works__heading-line {
+    font-size: clamp(64px, 12vw, 140px);
+  }
+
+  .works__heading-row {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .works__count {
+    font-size: clamp(28px, 5vw, 56px);
+    color: var(--accent);
+  }
+
+  .works__list {
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+  }
+
+  @media (min-width: 900px) {
+    .works__list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .works__list > .card:first-child {
+      grid-column: 1 / -1;
+    }
+  }
+
+  .card {
+    position: relative;
+    display: block;
+    height: 540px;
+    border-radius: 28px;
+    border: 1px solid var(--hairline);
+    overflow: hidden;
+    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+  }
+
+  .card__art {
+    position: absolute;
+    inset: 0;
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .card:hover .card__art {
+    transform: scale(1.04);
+  }
+
+  .card__shade {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.78));
+    transition: opacity 0.5s;
+  }
+
+  .card:hover .card__shade {
+    opacity: 0.75;
+  }
+
+  .card__index {
+    position: absolute;
+    top: 28px;
+    right: 18px;
+    font-size: 140px;
+    line-height: 1;
+    opacity: 0.55;
+    transition: opacity 0.5s;
+  }
+
+  .card:hover .card__index {
+    opacity: 1;
+  }
+
+  .card__top {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 18px;
+  }
+
+  .card__top .label {
+    color: rgba(242, 240, 236, 0.7);
+  }
+
+  .card__bottom {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    padding: 18px;
+  }
+
+  .card__title {
+    font-size: clamp(56px, 9vw, 96px);
+    color: var(--ink);
+  }
+
+  .card__subtitle {
+    margin-top: 6px;
+  }
+
+  .card__footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 16px;
+  }
+
+  .card__tags {
+    font-size: 10px;
+    letter-spacing: 0.1em;
+  }
+
+  .card__arrow {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: var(--ink);
+    color: #000;
+    display: grid;
+    place-items: center;
+    font-size: 18px;
+    font-weight: 700;
+    transition: background 0.3s, color 0.3s, transform 0.3s;
+  }
+
+  .card:hover .card__arrow {
+    background: var(--accent);
+    transform: rotate(45deg);
+  }
+
+  .card__line {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    height: 2px;
+    width: 100%;
+    background: var(--accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+  }
+
+  .card:hover .card__line,
+  .card.in .card__line {
+    transform: scaleX(1);
+  }
+</style>

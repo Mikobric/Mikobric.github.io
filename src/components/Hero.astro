@@ -1,0 +1,137 @@
+---
+---
+
+<section class="hero" id="hero">
+  <div class="hero__bg mesh" style="--c0:#0c1f73; --c1:#401066;" aria-hidden="true"></div>
+
+  <div class="hero__content wrap">
+    <p class="label label--accent glow" data-reveal style="--reveal-delay: 0.05s">
+      |&nbsp;&nbsp;PORTFOLIO — EST. 2026 — POLAND&nbsp;&nbsp;|
+    </p>
+
+    <h1 class="hero__wordmark">
+      <span class="display chrome hero__line" data-reveal style="--reveal-delay: 0.15s">MIKO</span>
+      <span class="display hero__line" data-reveal style="--reveal-delay: 0.25s"
+        >WORKS<sup class="hero__reg">®</sup></span
+      >
+    </h1>
+
+    <div class="hero__meta" data-reveal style="--reveal-delay: 0.4s">
+      <span class="hero__role label">
+        [ ROLE: <span class="hero__role-value label label--ink" id="role-value">HARDWARE</span> ]
+      </span>
+      <span class="hero__scroll">
+        <span class="label">[ SCROLL ]</span>
+        <span class="hero__scroll-track" aria-hidden="true">
+          <span class="hero__scroll-dot"></span>
+        </span>
+      </span>
+    </div>
+  </div>
+</section>
+
+<script>
+  const roles = ['HARDWARE', 'FIRMWARE', 'RF DESIGN', 'SWIFTUI'];
+  const el = document.getElementById('role-value');
+  let i = 0;
+  if (el) {
+    setInterval(() => {
+      i = (i + 1) % roles.length;
+      el.style.opacity = '0';
+      setTimeout(() => {
+        el.textContent = roles[i] ?? '';
+        el.style.opacity = '1';
+      }, 250);
+    }, 2200);
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .hero__bg {
+    position: absolute;
+    inset: 0;
+    opacity: 0.55;
+    mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+  }
+
+  .hero__content {
+    position: relative;
+    width: 100%;
+    padding-bottom: 48px;
+  }
+
+  .hero__wordmark {
+    display: flex;
+    flex-direction: column;
+    margin: 8px 0 20px;
+  }
+
+  .hero__line {
+    font-size: clamp(96px, 23vw, 320px);
+    display: block;
+  }
+
+  .hero__reg {
+    font-size: 0.22em;
+    color: var(--accent);
+    vertical-align: super;
+    -webkit-text-stroke: 0;
+  }
+
+  .hero__meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .hero__role {
+    border: 1px solid var(--hairline);
+    padding: 9px 12px;
+    display: inline-block;
+  }
+
+  .hero__role-value {
+    transition: opacity 0.25s;
+  }
+
+  .hero__scroll {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .hero__scroll-track {
+    position: relative;
+    width: 1px;
+    height: 26px;
+    background: rgba(255, 255, 255, 0.25);
+  }
+
+  .hero__scroll-dot {
+    position: absolute;
+    top: 0;
+    left: -1.5px;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent);
+    animation: scroll-dot 1.8s ease-in-out infinite;
+  }
+
+  @keyframes scroll-dot {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(22px); }
+  }
+</style>

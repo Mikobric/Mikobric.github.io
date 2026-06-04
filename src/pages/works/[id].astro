@@ -1,0 +1,210 @@
+---
+import Base from '../../layouts/Base.astro';
+import { projects, nextProject } from '../../data/projects';
+
+export function getStaticPaths() {
+  return projects.map((project) => ({
+    params: { id: project.id },
+    props: { project },
+  }));
+}
+
+const { project } = Astro.props;
+const next = nextProject(project.id);
+
+const meta = [
+  { key: 'YEAR', value: project.year },
+  { key: 'ROLE', value: project.role },
+  { key: 'STATUS', value: project.status },
+  { key: 'INDEX', value: `${project.index} / ${String(projects.length).padStart(2, '0')}` },
+];
+---
+
+<Base title={`${project.title} — MIKO® WORKS`} description={project.blurb}>
+  <main class="detail">
+    <header class="detail__hero" style={`--c0:${project.palette[0]}; --c1:${project.palette[1]};`}>
+      <div class="detail__art mesh" aria-hidden="true"></div>
+      <span class="display outline--accent detail__index" aria-hidden="true">{project.index}</span>
+      <a class="detail__close pressable" href="/#works" aria-label="Close project">✕</a>
+      <div class="detail__title wrap">
+        <h1 class="display detail__name">{project.title}</h1>
+        <p class="label label--accent glow">{project.subtitle}</p>
+      </div>
+    </header>
+
+    <div class="wrap detail__body">
+      <div class="detail__meta">
+        {
+          meta.map((row) => (
+            <div class="detail__row">
+              <span class="label">{row.key}</span>
+              <span class="detail__value">{row.value}</span>
+            </div>
+          ))
+        }
+      </div>
+
+      <p class="detail__blurb" data-reveal>{project.blurb}</p>
+
+      <div class="detail__section" data-reveal>
+        <p class="label label--accent glow">TECHNICAL DATA</p>
+        {
+          project.specs.map((spec) => (
+            <div class="detail__row">
+              <span class="label">{spec.key}</span>
+              <span class="detail__value">{spec.value}</span>
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="detail__section" data-reveal>
+        <p class="label label--accent glow">STACK</p>
+        <div class="detail__tags">
+          {project.tags.map((tag) => <span class="detail__tag">[ {tag} ]</span>)}
+        </div>
+      </div>
+    </div>
+
+    <a class="detail__next pressable" href={`/works/${next.id}/`}>
+      <span class="label">NEXT PROJECT</span>
+      <span class="detail__next-title display">{next.title} <span class="detail__next-arrow">→</span></span>
+    </a>
+  </main>
+</Base>
+
+<style>
+  .detail__hero {
+    position: relative;
+    height: 60svh;
+    min-height: 420px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+  }
+
+  .detail__art {
+    position: absolute;
+    inset: 0;
+    mask-image: linear-gradient(to bottom, black 35%, transparent 100%);
+    -webkit-mask-image: linear-gradient(to bottom, black 35%, transparent 100%);
+  }
+
+  .detail__index {
+    position: absolute;
+    top: 64px;
+    right: 20px;
+    font-family: var(--font-display);
+    font-size: clamp(140px, 22vw, 280px);
+    line-height: 1;
+    opacity: 0.45;
+  }
+
+  .detail__close {
+    position: absolute;
+    top: 64px;
+    left: var(--gutter);
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 1px solid var(--hairline);
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(8px);
+    display: grid;
+    place-items: center;
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .detail__close:hover {
+    background: var(--accent);
+    color: #000;
+  }
+
+  .detail__title {
+    position: relative;
+    width: 100%;
+    padding-bottom: 28px;
+  }
+
+  .detail__name {
+    font-size: clamp(80px, 16vw, 220px);
+  }
+
+  .detail__body {
+    display: flex;
+    flex-direction: column;
+    gap: 36px;
+    padding-top: 16px;
+  }
+
+  .detail__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 0;
+    border-top: 1px solid var(--hairline);
+  }
+
+  .detail__value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-align: right;
+  }
+
+  .detail__blurb {
+    max-width: 620px;
+    font-size: 17px;
+    color: rgba(242, 240, 236, 0.85);
+  }
+
+  .detail__section > .label {
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .detail__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+
+  .detail__tag {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    color: var(--accent);
+    border: 1px solid var(--hairline);
+    border-radius: 4px;
+    padding: 5px 8px;
+  }
+
+  .detail__next {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 80px;
+    padding: 48px var(--gutter) 64px;
+    border-top: 1px solid var(--hairline);
+    text-align: center;
+  }
+
+  .detail__next-title {
+    font-size: clamp(56px, 10vw, 120px);
+  }
+
+  .detail__next-arrow {
+    color: var(--accent);
+    transition: transform 0.3s;
+    display: inline-block;
+  }
+
+  .detail__next:hover .detail__next-arrow {
+    transform: translateX(12px);
+  }
+</style>

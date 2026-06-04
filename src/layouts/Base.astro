@@ -1,0 +1,143 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = 'MIKO® WORKS — hardware portfolio',
+  description = 'Hardware maker portfolio: solar weather stations, RF pager networks, sensor experiments — and the software around them.',
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta name="theme-color" content="#0a0a0b" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <title>{title}</title>
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <div class="cursor-dot" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a href="/" class="site-header__brand">MIKO®</a>
+      <div class="site-header__status">
+        <span class="site-header__dot" aria-hidden="true"></span>
+        <span class="label label--ink">OPEN FOR WORK</span>
+      </div>
+    </header>
+
+    <slot />
+
+    <script>
+      // Reveal on scroll — the IntersectionObserver twin of the app's reveal().
+      const io = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('in');
+              io.unobserve(entry.target);
+            }
+          }
+        },
+        { threshold: 0.25 }
+      );
+      document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
+
+      // Rolling stat counters.
+      const counterIo = new IntersectionObserver(
+        (entries) => {
+          for (const entry of entries) {
+            if (!entry.isIntersecting) continue;
+            const el = entry.target as HTMLElement;
+            counterIo.unobserve(el);
+            const target = Number(el.dataset.count ?? '0');
+            const suffix = el.dataset.suffix ?? '';
+            const start = performance.now();
+            const duration = 1400;
+            const tick = (now: number) => {
+              const t = Math.min((now - start) / duration, 1);
+              const eased = 1 - Math.pow(1 - t, 3);
+              el.textContent = Math.round(target * eased).toLocaleString('en-US') + suffix;
+              if (t < 1) requestAnimationFrame(tick);
+            };
+            requestAnimationFrame(tick);
+          }
+        },
+        { threshold: 0.6 }
+      );
+      document.querySelectorAll('[data-count]').forEach((el) => counterIo.observe(el));
+
+      // Custom cursor dot.
+      const dot = document.querySelector<HTMLElement>('.cursor-dot');
+      if (dot && matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        addEventListener('mousemove', (e) => {
+          dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
+        });
+        document.querySelectorAll('a, button').forEach((el) => {
+          el.addEventListener('mouseenter', () => dot.classList.add('on-link'));
+          el.addEventListener('mouseleave', () => dot.classList.remove('on-link'));
+        });
+      }
+    </script>
+
+    <style>
+      .site-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px var(--gutter);
+        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent);
+      }
+
+      .site-header__brand {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 0.2em;
+        color: var(--ink);
+      }
+
+      .site-header__status {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .site-header__dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--accent);
+        box-shadow: 0 0 8px var(--accent);
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+
+      @keyframes pulse {
+        50% {
+          opacity: 0.25;
+        }
+      }
+    </style>
+  </body>
+</html>
