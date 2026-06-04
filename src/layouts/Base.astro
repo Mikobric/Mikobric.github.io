@@ -129,14 +129,14 @@ const nav = [
         let mx = -50, my = -50, fx = -50, fy = -50;
         let hot = false;
         addEventListener('mousemove', (e) => {
-          mx = e.clientX + 14;
-          my = e.clientY + 14;
+          mx = e.clientX;
+          my = e.clientY;
         });
         const loop = () => {
           fx += (mx - fx) * 0.16;
           fy += (my - fy) * 0.16;
           const spin = hot ? ' rotate(45deg) scale(1.5)' : '';
-          follower.style.transform = `translate(${fx}px, ${fy}px)${spin}`;
+          follower.style.transform = `translate(${fx}px, ${fy}px) translate(-50%, -50%)${spin}`;
           requestAnimationFrame(loop);
         };
         loop();
