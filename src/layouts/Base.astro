@@ -47,12 +47,7 @@ const nav = [
     <span class="regmark regmark--bl" aria-hidden="true"></span>
     <span class="regmark regmark--br" aria-hidden="true"></span>
 
-    <div class="xhair" aria-hidden="true">
-      <span class="xhair__v"></span>
-      <span class="xhair__h"></span>
-      <span class="xhair__dot"></span>
-      <span class="xhair__coords"></span>
-    </div>
+    <div class="follower" aria-hidden="true"></div>
 
     <div class="doc-strip">
       <span class="doc-strip__brand">MIKO®</span>
@@ -128,28 +123,71 @@ const nav = [
       const fine = matchMedia('(hover: hover) and (pointer: fine)').matches;
       const calm = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-      // CAD crosshair cursor with live coordinates.
-      const xhair = document.querySelector<HTMLElement>('.xhair');
-      if (xhair && fine) {
-        const v = xhair.querySelector<HTMLElement>('.xhair__v')!;
-        const h = xhair.querySelector<HTMLElement>('.xhair__h')!;
-        const dot = xhair.querySelector<HTMLElement>('.xhair__dot')!;
-        const coords = xhair.querySelector<HTMLElement>('.xhair__coords')!;
+      // Trailing square follower — native cursor stays visible.
+      const follower = document.querySelector<HTMLElement>('.follower');
+      if (follower && fine) {
+        let mx = -50, my = -50, fx = -50, fy = -50;
+        let hot = false;
         addEventListener('mousemove', (e) => {
-          v.style.transform = `translateX(${e.clientX}px)`;
-          h.style.transform = `translateY(${e.clientY}px)`;
-          dot.style.left = `${e.clientX}px`;
-          dot.style.top = `${e.clientY}px`;
-          coords.style.left = `${e.clientX}px`;
-          coords.style.top = `${e.clientY}px`;
-          coords.textContent = xhair.classList.contains('xhair--link')
-            ? '[ ENGAGE ]'
-            : `X.${String(e.clientX).padStart(4, '0')} Y.${String(e.clientY).padStart(4, '0')}`;
+          mx = e.clientX + 14;
+          my = e.clientY + 14;
         });
+        const loop = () => {
+          fx += (mx - fx) * 0.16;
+          fy += (my - fy) * 0.16;
+          const spin = hot ? ' rotate(45deg) scale(1.5)' : '';
+          follower.style.transform = `translate(${fx}px, ${fy}px)${spin}`;
+          requestAnimationFrame(loop);
+        };
+        loop();
         document.querySelectorAll('a, button').forEach((el) => {
-          el.addEventListener('mouseenter', () => xhair.classList.add('xhair--link'));
-          el.addEventListener('mouseleave', () => xhair.classList.remove('xhair--link'));
+          el.addEventListener('mouseenter', () => {
+            hot = true;
+            follower.classList.add('follower--link');
+          });
+          el.addEventListener('mouseleave', () => {
+            hot = false;
+            follower.classList.remove('follower--link');
+          });
         });
+      }
+
+      // Touch devices have no hover — light up the row nearest viewport center
+      // while scrolling, so the page feels alive on the phone too.
+      if (matchMedia('(hover: none)').matches) {
+        const hotIo = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              entry.target.classList.toggle('touch-hot', entry.isIntersecting);
+            }
+          },
+          { rootMargin: '-45% 0px -45% 0px' }
+        );
+        document
+          .querySelectorAll('[data-touch-hot]')
+          .forEach((el) => hotIo.observe(el));
+      }
+
+      // Gentle hero parallax.
+      if (!calm) {
+        const words = document.querySelectorAll<HTMLElement>('.hero__word');
+        if (words.length) {
+          let ticking = false;
+          addEventListener(
+            'scroll',
+            () => {
+              if (ticking) return;
+              ticking = true;
+              requestAnimationFrame(() => {
+                words.forEach((word, i) => {
+                  word.style.transform = `translateY(${scrollY * (i === 0 ? -0.06 : -0.14)}px)`;
+                });
+                ticking = false;
+              });
+            },
+            { passive: true }
+          );
+        }
       }
 
       // Live clock in the document strip.

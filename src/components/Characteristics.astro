@@ -62,7 +62,7 @@ const capabilities = [
     </div>
     {
       capabilities.map((cap, i) => (
-        <div class="caps__row" data-reveal style={`--reveal-delay: ${i * 0.06}s`}>
+        <div class="caps__row" data-reveal data-touch-hot style={`--reveal-delay: ${i * 0.06}s`}>
           <span class="caps__index">{String(i + 1).padStart(2, '0')}</span>
           <span class="caps__name display">{cap}</span>
           <span class="caps__check" aria-hidden="true"></span>
@@ -100,11 +100,13 @@ const capabilities = [
     transition: padding-left 0.25s;
   }
 
-  .caps__row:hover {
+  .caps__row:hover,
+  .caps__row.touch-hot {
     padding-left: 18px;
   }
 
-  .caps__row:hover .caps__check {
+  .caps__row:hover .caps__check,
+  .caps__row.touch-hot .caps__check {
     color: var(--accent);
   }
 
@@ -130,7 +132,8 @@ const capabilities = [
     content: '▢';
   }
 
-  .caps__row:hover .caps__check::before {
+  .caps__row:hover .caps__check::before,
+  .caps__row.touch-hot .caps__check::before {
     content: '▣';
   }
 </style>

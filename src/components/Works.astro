@@ -19,9 +19,10 @@ function stampClass(status: string): string {
     {
       projects.map((project, i) => (
         <a
-          class="row"
+          class="row pressy"
           href={`/works/${project.id}/`}
           data-reveal
+          data-touch-hot
           style={`--reveal-delay: ${i * 0.06}s`}
         >
           <span class="row__index">{project.index}</span>
@@ -119,23 +120,31 @@ function stampClass(status: string): string {
     }
   }
 
-  /* Hover: the row inverts to ink, paper text — straight from the Stitch concept */
-  .row:hover {
+  /* Hover (desktop) / scroll-center (touch): the row inverts to ink, paper text */
+  .row:hover,
+  .row.touch-hot {
     background: var(--ink);
     color: var(--paper);
   }
 
-  .row:hover .row__subtitle {
+  .row:hover .row__subtitle,
+  .row.touch-hot .row__subtitle {
     color: rgba(251, 249, 243, 0.6);
   }
 
-  .row:hover .row__arrow {
+  .row:hover .row__arrow,
+  .row.touch-hot .row__arrow {
     transform: translate(3px, -3px);
     color: var(--accent);
   }
 
-  .row:hover .stamp:not(.stamp--accent) {
+  .row:hover .stamp:not(.stamp--accent),
+  .row.touch-hot .stamp:not(.stamp--accent) {
     color: var(--paper);
+  }
+
+  .row.touch-hot .row__index {
+    color: var(--accent);
   }
 
   .fig {
