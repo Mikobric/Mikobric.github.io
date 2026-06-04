@@ -2,7 +2,7 @@
 ---
 
 <section class="hero" id="hero">
-  <div class="hero__bg mesh" style="--c0:#0c1f73; --c1:#401066;" aria-hidden="true"></div>
+  <div class="hero__bg" aria-hidden="true"></div>
 
   <div class="hero__content wrap">
     <p class="label label--accent glow" data-reveal style="--reveal-delay: 0.05s">
@@ -55,12 +55,14 @@
     overflow: hidden;
   }
 
+  /* Near-black field with two whisper-quiet glows — no banding, no "noisy photo". */
   .hero__bg {
     position: absolute;
     inset: 0;
-    opacity: 0.55;
-    mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 40%, transparent 100%);
+    background:
+      radial-gradient(900px 520px at 72% 10%, rgba(40, 68, 175, 0.22), transparent 65%),
+      radial-gradient(720px 480px at 15% 42%, rgba(90, 36, 160, 0.12), transparent 60%),
+      var(--bg);
   }
 
   .hero__content {
