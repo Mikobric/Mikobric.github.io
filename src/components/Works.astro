@@ -1,224 +1,144 @@
 ---
 import { projects } from '../data/projects';
+
+function stampClass(status: string): string {
+  return status === 'LIVE' ? 'stamp stamp--accent' : 'stamp';
+}
 ---
 
-<section class="works wrap" id="works">
-  <h2 class="works__heading" data-reveal>
-    <span class="display works__heading-line">SELECTED</span>
-    <span class="works__heading-row">
-      <span class="display outline works__heading-line">WORKS</span>
-      <span class="display works__count glow">({String(projects.length).padStart(2, '0')})</span>
-    </span>
-  </h2>
+<section class="section wrap" id="works">
+  <div class="watermark" aria-hidden="true"><span>CONFIDENTIAL</span></div>
 
-  <div class="works__list">
+  <div class="sec-head" data-reveal>
+    <span class="sec-head__no">2.0</span>
+    <span class="sec-head__title">SELECTED WORKS</span>
+    <span class="sec-head__meta label">PAGE 02</span>
+  </div>
+
+  <div class="registry" role="table">
     {
-      projects.map((project) => (
+      projects.map((project, i) => (
         <a
-          class="card pressable"
+          class="row"
           href={`/works/${project.id}/`}
           data-reveal
-          style={`--c0:${project.palette[0]}; --c1:${project.palette[1]};`}
+          style={`--reveal-delay: ${i * 0.06}s`}
         >
-          <div class="card__art mesh" aria-hidden="true" />
-          <div class="card__shade" aria-hidden="true" />
-          <span class="display outline--accent card__index" aria-hidden="true">
-            {project.index}
+          <span class="row__index">{project.index}</span>
+          <span class="row__name-block">
+            <span class="row__name display">{project.title}</span>
+            <span class="row__subtitle">{project.subtitle}</span>
           </span>
-
-          <div class="card__top">
-            <span class="label">{project.year}</span>
-            <span class={`pill ${project.status === 'LIVE' ? 'pill--live' : ''}`}>
-              {project.status}
-            </span>
-          </div>
-
-          <div class="card__bottom">
-            <h3 class="display card__title">{project.title}</h3>
-            <p class="label card__subtitle">{project.subtitle}</p>
-            <div class="card__footer">
-              <span class="card__tags label label--ink">
-                {project.tags.slice(0, 3).map((t) => `[ ${t} ]`).join('  ')}
-              </span>
-              <span class="card__arrow" aria-hidden="true">↗</span>
-            </div>
-          </div>
-
-          <span class="card__line" aria-hidden="true" />
+          <span class="row__year">{project.year}</span>
+          <span class={stampClass(project.status)}>{project.status}</span>
+          <span class="row__arrow" aria-hidden="true">↗</span>
         </a>
       ))
     }
   </div>
+
+  <p class="fig label" data-reveal>FIG. 01 — PROJECT INDEX / REGISTRY</p>
 </section>
 
 <style>
-  .works {
-    padding-top: 48px;
+  .registry {
+    position: relative;
+    z-index: 1;
+    border-top: 1px solid var(--rule);
   }
 
-  .works__heading {
-    display: flex;
-    flex-direction: column;
-    margin-bottom: 28px;
+  .row {
+    display: grid;
+    grid-template-columns: 36px 1fr auto auto;
+    align-items: center;
+    gap: 14px;
+    padding: 20px 10px;
+    border-bottom: 1px solid var(--rule-soft);
+    transition: background 0.25s, color 0.25s;
   }
 
-  .works__heading-line {
-    font-size: clamp(64px, 12vw, 140px);
+  @media (min-width: 760px) {
+    .row {
+      grid-template-columns: 56px 1fr 110px 130px 40px;
+      gap: 20px;
+      padding: 22px 14px;
+    }
   }
 
-  .works__heading-row {
-    display: flex;
-    align-items: baseline;
-    gap: 16px;
-  }
-
-  .works__count {
-    font-size: clamp(28px, 5vw, 56px);
+  .row__index {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
     color: var(--accent);
   }
 
-  .works__list {
+  .row__name-block {
     display: flex;
     flex-direction: column;
-    gap: 28px;
+    gap: 2px;
+    min-width: 0;
   }
 
-  @media (min-width: 900px) {
-    .works__list {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-    }
-
-    .works__list > .card:first-child {
-      grid-column: 1 / -1;
-    }
-  }
-
-  .card {
-    position: relative;
-    display: block;
-    height: 540px;
-    border-radius: 28px;
-    border: 1px solid var(--hairline);
-    overflow: hidden;
-    transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .card:hover {
-    transform: translateY(-6px);
-  }
-
-  .card__art {
-    position: absolute;
-    inset: 0;
-    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
-  }
-
-  .card:hover .card__art {
-    transform: scale(1.04);
-  }
-
-  .card__shade {
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(0, 0, 0, 0.1), rgba(0, 0, 0, 0.78));
-    transition: opacity 0.5s;
-  }
-
-  .card:hover .card__shade {
-    opacity: 0.75;
-  }
-
-  .card__index {
-    position: absolute;
-    top: 28px;
-    right: 18px;
-    font-size: 140px;
+  .row__name {
+    font-size: clamp(30px, 5.5vw, 56px);
     line-height: 1;
-    opacity: 0.55;
-    transition: opacity 0.5s;
   }
 
-  .card:hover .card__index {
-    opacity: 1;
+  .row__subtitle {
+    font-family: var(--font-mono);
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--ink-soft);
   }
 
-  .card__top {
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 18px;
+  .row__year {
+    display: none;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-variant-numeric: tabular-nums;
   }
 
-  .card__top .label {
-    color: rgba(242, 240, 236, 0.7);
+  @media (min-width: 760px) {
+    .row__year {
+      display: block;
+    }
   }
 
-  .card__bottom {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    padding: 18px;
-  }
-
-  .card__title {
-    font-size: clamp(56px, 9vw, 96px);
-    color: var(--ink);
-  }
-
-  .card__subtitle {
-    margin-top: 6px;
-  }
-
-  .card__footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-top: 16px;
-  }
-
-  .card__tags {
-    font-size: 10px;
-    letter-spacing: 0.1em;
-  }
-
-  .card__arrow {
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    background: var(--ink);
-    color: #000;
-    display: grid;
-    place-items: center;
+  .row__arrow {
+    display: none;
     font-size: 18px;
     font-weight: 700;
-    transition: background 0.3s, color 0.3s, transform 0.3s;
+    transition: transform 0.25s;
   }
 
-  .card:hover .card__arrow {
-    background: var(--accent);
-    transform: rotate(45deg);
+  @media (min-width: 760px) {
+    .row__arrow {
+      display: block;
+    }
   }
 
-  .card__line {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    height: 2px;
-    width: 100%;
-    background: var(--accent);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.15s;
+  /* Hover: the row inverts to ink, paper text — straight from the Stitch concept */
+  .row:hover {
+    background: var(--ink);
+    color: var(--paper);
   }
 
-  .card:hover .card__line,
-  .card.in .card__line {
-    transform: scaleX(1);
+  .row:hover .row__subtitle {
+    color: rgba(251, 249, 243, 0.6);
+  }
+
+  .row:hover .row__arrow {
+    transform: translate(3px, -3px);
+    color: var(--accent);
+  }
+
+  .row:hover .stamp:not(.stamp--accent) {
+    color: var(--paper);
+  }
+
+  .fig {
+    margin-top: 14px;
   }
 </style>

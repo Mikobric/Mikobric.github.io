@@ -6,6 +6,7 @@ export interface Spec {
 export interface Project {
   id: string;
   index: string;
+  partNo: string;
   title: string;
   subtitle: string;
   year: string;
@@ -14,6 +15,8 @@ export interface Project {
   blurb: string;
   tags: string[];
   specs: Spec[];
+  features: string[];
+  chain: string[];
   palette: [string, string];
 }
 
@@ -21,6 +24,7 @@ export const projects: Project[] = [
   {
     id: 'zephyr',
     index: '01',
+    partNo: 'MIKO-ZPH-01',
     title: 'ZEPHYR',
     subtitle: 'SOLAR WEATHER STATION',
     year: '2025—26',
@@ -36,11 +40,21 @@ export const projects: Project[] = [
       { key: 'DISPLAY', value: 'TFT BASE STATION' },
       { key: 'CLIENTS', value: 'IOS + WEB' },
     ],
+    features: [
+      'Solar powered continuous operation',
+      'LoRa 433 MHz uplink telemetry',
+      'BME680 precision environmental sensing',
+      'Hall-effect anemometer wind sensing',
+      'TFT base station with forecast display',
+      'Native iOS + web client integration',
+    ],
+    chain: ['BME680 + HALL', 'ESP32', 'LORA 433 MHZ', 'BASE STATION', 'IOS / WEB'],
     palette: ['#1a47f2', '#00a6d9'],
   },
   {
     id: 'pager',
     index: '02',
+    partNo: 'MIKO-PGR-02',
     title: 'PAGER',
     subtitle: 'OFFLINE ESP-NOW PAGING',
     year: '2026',
@@ -55,11 +69,21 @@ export const projects: Project[] = [
       { key: 'FEEDBACK', value: 'BUZZER + VIBRA' },
       { key: 'LATENCY', value: 'INSTANT' },
     ],
+    features: [
+      'Zero-infrastructure ESP-NOW broadcast',
+      'Fleet of pocket pagers, instant paging',
+      'Buzzer + vibration feedback',
+      'Fully offline — no router, no cloud, no SIM',
+      '3D-printed enclosures',
+      'Shop-floor field tested',
+    ],
+    chain: ['STATION', 'ESP-NOW', 'PAGER FLEET', 'BUZZ + VIBRA'],
     palette: ['#ff4d00', '#d90d26'],
   },
   {
     id: 'longwave',
     index: '03',
+    partNo: 'MIKO-LNG-03',
     title: 'LONGWAVE',
     subtitle: 'LORA RANGE LAB',
     year: '2025',
@@ -74,11 +98,19 @@ export const projects: Project[] = [
       { key: 'TERRAIN', value: 'URBAN + OPEN FIELD' },
       { key: 'OUTCOME', value: 'ZEPHYR RADIO LINK' },
     ],
+    features: [
+      'SX127X transmitter / receiver pairs',
+      'Spreading factor sweeps SF7–SF12',
+      'Antenna comparisons in the field',
+      'Urban vs. open-field range runs',
+    ],
+    chain: ['TX SX127X', 'ANTENNA LAB', '1.8 KM AIR GAP', 'RX SX127X'],
     palette: ['#7326e6', '#e633bf'],
   },
   {
     id: 'sensorlab',
     index: '04',
+    partNo: 'MIKO-SNS-04',
     title: 'SENSOR LAB',
     subtitle: 'THE I2C MENAGERIE',
     year: '2025',
@@ -93,11 +125,19 @@ export const projects: Project[] = [
       { key: 'POWER MONITORING', value: 'INA219' },
       { key: 'TEMPERATURE', value: 'DS18B20' },
     ],
+    features: [
+      'BME280 / BME680 environmental bring-ups',
+      'INA219 power & current profiling',
+      'DS18B20 1-wire temperature chains',
+      'Hall-effect and battery monitoring rigs',
+    ],
+    chain: ['SENSOR', 'I2C / 1-WIRE', 'ESP32', 'SERIAL LOG'],
     palette: ['#00994d', '#1ad9b3'],
   },
   {
     id: 'meta',
     index: '05',
+    partNo: 'MIKO-WEB-05',
     title: 'MIKO WORKS',
     subtitle: 'THIS VERY SITE',
     year: '2026',
@@ -112,6 +152,13 @@ export const projects: Project[] = [
       { key: 'DESIGN LOOP', value: 'GOOGLE STITCH' },
       { key: 'HOSTING', value: 'GITHUB PAGES' },
     ],
+    features: [
+      'Astro static build, zero framework JS',
+      'Datasheet design system from Google Stitch',
+      'SwiftUI + Metal shader iOS twin',
+      'Auto-deploy via GitHub Actions',
+    ],
+    chain: ['STITCH', 'CLAUDE CODE', 'ASTRO', 'GITHUB PAGES'],
     palette: ['#bfc7d9', '#334de6'],
   },
 ];

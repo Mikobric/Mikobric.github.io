@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>ZEPHYR — SOLAR WEATHER STATION Datasheet</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:ital,wght@0,400..700;1,400..700&amp;family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "secondary": "#aa3000",
+                      "inverse-primary": "#c8c6c5",
+                      "on-secondary-container": "#fffbff",
+                      "primary-fixed": "#e5e2e1",
+                      "on-secondary": "#ffffff",
+                      "surface-container-highest": "#e4e2dd",
+                      "surface-container-high": "#eae8e2",
+                      "background": "#fbf9f3",
+                      "surface-container-low": "#f5f3ed",
+                      "on-background": "#1b1c18",
+                      "on-error-container": "#93000a",
+                      "on-primary": "#ffffff",
+                      "outline-variant": "#c4c7c7",
+                      "inverse-on-surface": "#f3f1eb",
+                      "primary-container": "#1c1b1b",
+                      "on-surface": "#1b1c18",
+                      "primary-fixed-dim": "#c8c6c5",
+                      "on-secondary-fixed": "#3a0b00",
+                      "on-primary-fixed": "#1c1b1b",
+                      "secondary-container": "#d43f00",
+                      "tertiary-fixed-dim": "#cac6c3",
+                      "secondary-fixed": "#ffdbd0",
+                      "secondary-fixed-dim": "#ffb59e",
+                      "on-primary-container": "#858383",
+                      "error-container": "#ffdad6",
+                      "error": "#ba1a1a",
+                      "surface-variant": "#e4e2dd",
+                      "inverse-surface": "#30312d",
+                      "surface-dim": "#dcdad4",
+                      "on-tertiary-container": "#868381",
+                      "on-primary-fixed-variant": "#474646",
+                      "surface-container": "#f0eee8",
+                      "on-secondary-fixed-variant": "#852400",
+                      "on-tertiary-fixed": "#1d1b1a",
+                      "outline": "#747878",
+                      "surface-bright": "#fbf9f3",
+                      "on-tertiary": "#ffffff",
+                      "on-tertiary-fixed-variant": "#484645",
+                      "tertiary-fixed": "#e6e1df",
+                      "on-error": "#ffffff",
+                      "primary": "#000000",
+                      "surface-tint": "#5f5e5e",
+                      "tertiary": "#000000",
+                      "tertiary-container": "#1d1b1a",
+                      "surface": "#fbf9f3",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface-variant": "#444748"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "unit": "4px",
+                      "margin-mobile": "16px",
+                      "hairline": "1px",
+                      "margin-desktop": "40px",
+                      "gutter": "16px"
+              },
+              "fontFamily": {
+                      "display-lg": [
+                              "Archivo Narrow"
+                      ],
+                      "label-caps": [
+                              "JetBrains Mono"
+                      ],
+                      "body-md": [
+                              "Archivo Narrow"
+                      ],
+                      "section-num": [
+                              "JetBrains Mono"
+                      ],
+                      "headline-xl": [
+                              "Archivo Narrow"
+                      ],
+                      "headline-lg": [
+                              "Archivo Narrow"
+                      ],
+                      "data-table": [
+                              "JetBrains Mono"
+                      ],
+                      "caption": [
+                              "JetBrains Mono"
+                      ]
+              },
+              "fontSize": {
+                      "display-lg": [
+                              "84px",
+                              {
+                                      "lineHeight": "80px",
+                                      "letterSpacing": "-0.04em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-caps": [
+                              "11px",
+                              {
+                                      "lineHeight": "14px",
+                                      "letterSpacing": "0.08em",
+                                      "fontWeight": "500"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "section-num": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-xl": [
+                              "48px",
+                              {
+                                      "lineHeight": "48px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-lg": [
+                              "32px",
+                              {
+                                      "lineHeight": "36px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "data-table": [
+                              "13px",
+                              {
+                                      "lineHeight": "18px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "caption": [
+                              "10px",
+                              {
+                                      "lineHeight": "14px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+      </script>
+<style>
+        .registration-mark-tl { position: absolute; top: 16px; left: 16px; width: 16px; height: 16px; border-top: 1px solid #101010; border-left: 1px solid #101010; }
+        .registration-mark-tr { position: absolute; top: 16px; right: 16px; width: 16px; height: 16px; border-top: 1px solid #101010; border-right: 1px solid #101010; }
+        .registration-mark-bl { position: absolute; bottom: 16px; left: 16px; width: 16px; height: 16px; border-bottom: 1px solid #101010; border-left: 1px solid #101010; }
+        .registration-mark-br { position: absolute; bottom: 16px; right: 16px; width: 16px; height: 16px; border-bottom: 1px solid #101010; border-right: 1px solid #101010; }
+      </style>
+</head>
+<body class="bg-background text-primary font-body-md min-h-screen relative overflow-x-hidden selection:bg-secondary selection:text-on-secondary">
+<!-- Registration Marks -->
+<div class="registration-mark-tl hidden md:block"></div>
+<div class="registration-mark-tr hidden md:block"></div>
+<div class="registration-mark-bl hidden md:block"></div>
+<div class="registration-mark-br hidden md:block"></div>
+<div class="flex flex-col md:flex-row min-h-screen max-w-[1440px] mx-auto">
+<!-- SideNav (Desktop) -->
+<nav class="hidden md:flex flex-col h-screen w-64 border-r border-primary bg-background sticky top-0 shrink-0 p-margin-desktop z-10">
+<div class="mb-12">
+<div class="font-headline-lg text-headline-lg font-bold tracking-tighter uppercase mb-2">MIKO-ZPH-01</div>
+<div class="font-label-caps text-label-caps text-secondary uppercase">REV 4.2 // 2024-05-12</div>
+</div>
+<ul class="flex flex-col space-y-4 mb-auto">
+<li>
+<a class="flex items-center gap-3 py-2 px-3 text-background bg-primary font-section-num text-section-num group" href="#">
+<span class="material-symbols-outlined text-[18px]">analytics</span>
+<span>1.0 OVERVIEW</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 py-2 px-3 text-primary hover:bg-surface-container-highest cursor-pointer font-section-num text-section-num transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">allo</span>
+<span>2.0 RATINGS</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 py-2 px-3 text-primary hover:bg-surface-container-highest cursor-pointer font-section-num text-section-num transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">schema</span>
+<span>3.0 DIAGRAMS</span>
+</a>
+</li>
+<li>
+<a class="flex items-center gap-3 py-2 px-3 text-primary hover:bg-surface-container-highest cursor-pointer font-section-num text-section-num transition-colors" href="#">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+<span>4.0 LOGISTICS</span>
+</a>
+</li>
+</ul>
+<button class="w-full border border-primary py-3 font-label-caps text-label-caps uppercase hover:bg-primary hover:text-background transition-colors duration-150 mt-8 flex items-center justify-center gap-2">
+                EXPORT DATA <span class="material-symbols-outlined text-[14px]">download</span>
+</button>
+</nav>
+<!-- Main Content Area -->
+<div class="flex-1 flex flex-col min-w-0">
+<!-- TopAppBar (Mobile & Desktop) -->
+<header class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-unit max-w-full border-b border-primary bg-background z-20 sticky top-0">
+<div class="font-headline-lg text-headline-lg uppercase tracking-tighter text-primary truncate">
+                    ZEPHYR — SOLAR WEATHER STATION
+                </div>
+<div class="flex items-center gap-4 shrink-0 text-primary">
+<button class="hover:bg-primary hover:text-background transition-colors duration-75 p-2 rounded-none flex items-center justify-center">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">settings</span>
+</button>
+<button class="hover:bg-primary hover:text-background transition-colors duration-75 p-2 rounded-none flex items-center justify-center hidden md:flex">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">download</span>
+</button>
+</div>
+</header>
+<!-- Document Chrome Strip -->
+<div class="flex border-b border-primary font-label-caps text-label-caps uppercase divide-x divide-primary">
+<div class="px-margin-mobile md:px-margin-desktop py-2 flex-1">DOC NO. MIKO-ZPH-01</div>
+<div class="px-margin-mobile md:px-4 py-2 shrink-0">REV 4.2</div>
+<div class="px-margin-mobile md:px-4 py-2 shrink-0 hidden sm:block">DATE 2024-05-12</div>
+</div>
+<!-- Scrollable Content -->
+<main class="flex-1 p-margin-mobile md:p-margin-desktop overflow-y-auto">
+<!-- Title Block -->
+<section class="mb-16 relative">
+<div class="absolute top-0 right-0 border-2 border-secondary text-secondary px-3 py-1 font-label-caps text-label-caps font-bold rotate-[-3deg] transform origin-top-right mt-4 mr-4">
+                        LIVE
+                    </div>
+<h1 class="font-display-lg text-display-lg text-primary uppercase mb-4 break-words">ZEPHYR</h1>
+<p class="font-section-num text-section-num text-primary">PART NO. MIKO-ZPH-01</p>
+</section>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-gutter">
+<!-- 1.0 FEATURES -->
+<section class="md:col-span-12 mb-12">
+<h2 class="font-section-num text-section-num text-primary mb-6 border-b border-primary pb-2 flex items-center gap-3">
+<span class="bg-primary text-background px-2 py-0.5">1.0</span> FEATURES
+                        </h2>
+<ul class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-4 font-body-md text-primary">
+<li class="flex items-start gap-2 border-b border-surface-container-highest pb-2">
+<span class="material-symbols-outlined text-[16px] mt-1 shrink-0">solar_power</span>
+<span>Solar powered continuous operation</span>
+</li>
+<li class="flex items-start gap-2 border-b border-surface-container-highest pb-2">
+<span class="material-symbols-outlined text-[16px] mt-1 shrink-0">cell_tower</span>
+<span>LoRa 433 MHz uplink telemetry</span>
+</li>
+<li class="flex items-start gap-2 border-b border-surface-container-highest pb-2">
+<span class="material-symbols-outlined text-[16px] mt-1 shrink-0">sensors</span>
+<span>BME680 precision environmental sensing</span>
+</li>
+<li class="flex items-start gap-2 border-b border-surface-container-highest pb-2">
+<span class="material-symbols-outlined text-[16px] mt-1 shrink-0">devices</span>
+<span>Native iOS + web client integration</span>
+</li>
+</ul>
+</section>
+<!-- 2.0 ABSOLUTE MAXIMUM RATINGS -->
+<section class="md:col-span-12 mb-12">
+<h2 class="font-section-num text-section-num text-primary mb-6 border-b border-primary pb-2 flex items-center gap-3">
+<span class="bg-primary text-background px-2 py-0.5">2.0</span> ABSOLUTE MAXIMUM RATINGS
+                        </h2>
+<div class="border border-primary">
+<table class="w-full text-left border-collapse font-data-table text-data-table">
+<thead class="bg-primary text-background uppercase font-label-caps text-label-caps">
+<tr>
+<th class="py-2 px-4 border-b border-primary font-medium w-1/3">PARAMETER</th>
+<th class="py-2 px-4 border-b border-primary font-medium">SPECIFICATION</th>
+</tr>
+</thead>
+<tbody class="text-primary uppercase divide-y divide-primary">
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-bold border-r border-primary">RADIO</td>
+<td class="py-3 px-4">LORA 433 MHZ</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-bold border-r border-primary">SENSORS</td>
+<td class="py-3 px-4">BME680 + HALL EFFECT</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-3 px-4 font-bold border-r border-primary">POWER</td>
+<td class="py-3 px-4">SOLAR + 18650 LITHIUM ION</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- 3.0 APPLICATIONS -->
+<section class="md:col-span-12 mb-12">
+<h2 class="font-section-num text-section-num text-primary mb-6 border-b border-primary pb-2 flex items-center gap-3">
+<span class="bg-primary text-background px-2 py-0.5">3.0</span> APPLICATIONS
+                        </h2>
+<div class="border border-primary p-6 bg-surface-container-lowest">
+<p class="font-body-md text-primary leading-relaxed">
+                                Designed for austere environments, the ZEPHYR station provides critical telemetric data bridging the gap between isolated environmental vectors and centralized analytical matrices. Primary deployment scenarios encompass remote agricultural monitoring, extreme-weather advanced warning perimeters, and isolated infrastructural health assessments where conventional power and cellular topologies are unavailable or unreliable.
+                            </p>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 border-t border-primary bg-background shrink-0 font-caption text-caption uppercase mt-auto">
+<div class="text-primary">
+                    © 2024 MIKO INDUSTRIAL SYSTEMS. ALL RIGHTS RESERVED.
+                </div>
+<div class="flex gap-4">
+<a class="text-primary hover:text-secondary transition-opacity duration-150 hidden md:block" href="#">
+                        PREVIOUS DOCUMENT: ZPH-00 ALPHA
+                    </a>
+<a class="text-secondary underline hover:text-secondary transition-opacity duration-150 flex items-center gap-1" href="#">
+                        NEXT DOCUMENT: PAGER (MIKO-PGR-02) <span class="material-symbols-outlined text-[12px]">arrow_forward</span>
+</a>
+</div>
+</footer>
+</div>
+</div>
+</body></html>

@@ -11,200 +11,353 @@ export function getStaticPaths() {
 
 const { project } = Astro.props;
 const next = nextProject(project.id);
+const prevIndex = (projects.findIndex((p) => p.id === project.id) + projects.length - 1) % projects.length;
+const prev = projects[prevIndex]!;
 
-const meta = [
-  { key: 'YEAR', value: project.year },
-  { key: 'ROLE', value: project.role },
-  { key: 'STATUS', value: project.status },
-  { key: 'INDEX', value: `${project.index} / ${String(projects.length).padStart(2, '0')}` },
+const sections = [
+  { no: '1.0', label: 'FEATURES', href: '#features' },
+  { no: '2.0', label: 'MAX RATINGS', href: '#ratings' },
+  { no: '3.0', label: 'SCHEMATIC', href: '#schematic' },
+  { no: '4.0', label: 'APPLICATIONS', href: '#applications' },
 ];
 ---
 
-<Base title={`${project.title} — MIKO® WORKS`} description={project.blurb}>
-  <main class="detail">
-    <header class="detail__hero" style={`--c0:${project.palette[0]}; --c1:${project.palette[1]};`}>
-      <div class="detail__art mesh" aria-hidden="true"></div>
-      <span class="display outline--accent detail__index" aria-hidden="true">{project.index}</span>
-      <a class="detail__close pressable" href="/#works" aria-label="Close project">✕</a>
-      <div class="detail__title wrap">
-        <h1 class="display detail__name">{project.title}</h1>
-        <p class="label label--accent glow">{project.subtitle}</p>
+<Base
+  title={`${project.title} — ${project.partNo} — MIKO® WORKS`}
+  description={project.blurb}
+  docNo={project.partNo}
+  sheet={`SHEET ${project.index} OF 05`}
+>
+  <main class="wrap doc">
+    <header class="doc__title" data-reveal>
+      <div class="doc__title-main">
+        <span class="label label--accent">PART NO. {project.partNo}</span>
+        <h1 class="display doc__name">{project.title}</h1>
+        <p class="label doc__subtitle">{project.subtitle} — {project.year}</p>
       </div>
+      <span
+        class={`stamp stamp--rotated stamp--thump doc__stamp ${project.status === 'LIVE' ? 'stamp--accent' : ''}`}
+      >
+        {project.status}
+      </span>
     </header>
 
-    <div class="wrap detail__body">
-      <div class="detail__meta">
-        {
-          meta.map((row) => (
-            <div class="detail__row">
-              <span class="label">{row.key}</span>
-              <span class="detail__value">{row.value}</span>
+    <div class="doc__grid">
+      <aside class="doc__side">
+        <nav class="doc__sidenav">
+          {
+            sections.map((section) => (
+              <a href={section.href} class="doc__sidelink label">
+                <span class="label--accent">{section.no}</span> {section.label}
+              </a>
+            ))
+          }
+        </nav>
+        <a class="doc__back label" href="/#works">← BACK TO REGISTRY</a>
+      </aside>
+
+      <div class="doc__content">
+        <section id="features">
+          <div class="sec-head" data-reveal>
+            <span class="sec-head__no">1.0</span>
+            <span class="sec-head__title">FEATURES</span>
+          </div>
+          <ul class="features" data-reveal>
+            {project.features.map((feature) => <li class="features__item">{feature}</li>)}
+          </ul>
+        </section>
+
+        <section id="ratings">
+          <div class="sec-head" data-reveal>
+            <span class="sec-head__no">2.0</span>
+            <span class="sec-head__title">ABSOLUTE MAXIMUM RATINGS</span>
+          </div>
+          <table class="dtable" data-reveal>
+            <thead>
+              <tr>
+                <th>PARAMETER</th>
+                <th>SPECIFICATION</th>
+              </tr>
+            </thead>
+            <tbody>
+              {
+                project.specs.map((spec) => (
+                  <tr>
+                    <td>{spec.key}</td>
+                    <td class="num">{spec.value}</td>
+                  </tr>
+                ))
+              }
+            </tbody>
+          </table>
+        </section>
+
+        <section id="schematic">
+          <div class="sec-head" data-reveal>
+            <span class="sec-head__no">3.0</span>
+            <span class="sec-head__title">SCHEMATIC OVERVIEW</span>
+          </div>
+          <div class="schematic" data-reveal>
+            <div class="schematic__chain">
+              {
+                project.chain.map((node, i) => (
+                  <>
+                    {i > 0 && <span class="schematic__wire" aria-hidden="true" />}
+                    <span class={`schematic__node ${i === Math.floor((project.chain.length - 1) / 2) ? 'schematic__node--hot' : ''}`}>
+                      {node}
+                    </span>
+                  </>
+                ))
+              }
             </div>
-          ))
-        }
-      </div>
+            <p class="fig label">
+              FIG. {project.index} — SIMPLIFIED BLOCK DIAGRAM. PIN ASSIGNMENTS AVAILABLE UPON
+              REQUEST.
+            </p>
+          </div>
+        </section>
 
-      <p class="detail__blurb" data-reveal>{project.blurb}</p>
-
-      <div class="detail__section" data-reveal>
-        <p class="label label--accent glow">TECHNICAL DATA</p>
-        {
-          project.specs.map((spec) => (
-            <div class="detail__row">
-              <span class="label">{spec.key}</span>
-              <span class="detail__value">{spec.value}</span>
-            </div>
-          ))
-        }
-      </div>
-
-      <div class="detail__section" data-reveal>
-        <p class="label label--accent glow">STACK</p>
-        <div class="detail__tags">
-          {project.tags.map((tag) => <span class="detail__tag">[ {tag} ]</span>)}
-        </div>
+        <section id="applications">
+          <div class="sec-head" data-reveal>
+            <span class="sec-head__no">4.0</span>
+            <span class="sec-head__title">APPLICATIONS</span>
+          </div>
+          <p class="doc__blurb" data-reveal>{project.blurb}</p>
+          <div class="doc__tags" data-reveal>
+            {project.tags.map((tag) => <span class="chip">{tag}</span>)}
+          </div>
+        </section>
       </div>
     </div>
 
-    <a class="detail__next pressable" href={`/works/${next.id}/`}>
-      <span class="label">NEXT PROJECT</span>
-      <span class="detail__next-title display">{next.title} <span class="detail__next-arrow">→</span></span>
-    </a>
+    <nav class="doc__pager" data-reveal>
+      <a class="doc__pager-link" href={`/works/${prev.id}/`}>
+        <span class="label">← PREVIOUS DOCUMENT</span>
+        <span class="doc__pager-name">{prev.title} ({prev.partNo})</span>
+      </a>
+      <a class="doc__pager-link doc__pager-link--next" href={`/works/${next.id}/`}>
+        <span class="label">NEXT DOCUMENT →</span>
+        <span class="doc__pager-name doc__pager-name--accent">{next.title} ({next.partNo})</span>
+      </a>
+    </nav>
   </main>
 </Base>
 
 <style>
-  .detail__hero {
-    position: relative;
-    height: 60svh;
-    min-height: 420px;
-    display: flex;
-    align-items: flex-end;
-    overflow: hidden;
+  .doc {
+    padding-top: 48px;
   }
 
-  .detail__art {
-    position: absolute;
-    inset: 0;
-    mask-image: linear-gradient(to bottom, black 35%, transparent 100%);
-    -webkit-mask-image: linear-gradient(to bottom, black 35%, transparent 100%);
-  }
-
-  .detail__index {
-    position: absolute;
-    top: 64px;
-    right: 20px;
-    font-family: var(--font-display);
-    font-size: clamp(140px, 22vw, 280px);
-    line-height: 1;
-    opacity: 0.45;
-  }
-
-  .detail__close {
-    position: absolute;
-    top: 64px;
-    left: var(--gutter);
-    width: 42px;
-    height: 42px;
-    border-radius: 50%;
-    border: 1px solid var(--hairline);
-    background: rgba(255, 255, 255, 0.1);
-    backdrop-filter: blur(8px);
-    display: grid;
-    place-items: center;
-    font-size: 14px;
-    font-weight: 700;
-  }
-
-  .detail__close:hover {
-    background: var(--accent);
-    color: #000;
-  }
-
-  .detail__title {
-    position: relative;
-    width: 100%;
-    padding-bottom: 28px;
-  }
-
-  .detail__name {
-    font-size: clamp(80px, 16vw, 220px);
-  }
-
-  .detail__body {
-    display: flex;
-    flex-direction: column;
-    gap: 36px;
-    padding-top: 16px;
-  }
-
-  .detail__row {
+  .doc__title {
     display: flex;
     justify-content: space-between;
-    align-items: center;
-    gap: 16px;
-    padding: 14px 0;
-    border-top: 1px solid var(--hairline);
+    align-items: flex-start;
+    gap: 20px;
+    border-bottom: 2px solid var(--rule);
+    padding-bottom: 26px;
   }
 
-  .detail__value {
-    font-family: var(--font-mono);
+  .doc__name {
+    font-size: clamp(64px, 11vw, 150px);
+    margin: 6px 0;
+  }
+
+  .doc__stamp {
+    margin-top: 18px;
     font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0.08em;
-    text-align: right;
   }
 
-  .detail__blurb {
-    max-width: 620px;
-    font-size: 17px;
-    color: rgba(242, 240, 236, 0.85);
+  .doc__grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding-top: 36px;
   }
 
-  .detail__section > .label {
+  @media (min-width: 900px) {
+    .doc__grid {
+      grid-template-columns: 200px 1fr;
+    }
+  }
+
+  .doc__side {
+    display: none;
+  }
+
+  @media (min-width: 900px) {
+    .doc__side {
+      display: block;
+    }
+
+    .doc__sidenav {
+      position: sticky;
+      top: 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      border: 1px solid var(--rule);
+      padding: 10px;
+    }
+  }
+
+  .doc__sidelink {
+    color: var(--ink);
+    padding: 8px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .doc__sidelink:hover {
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  .doc__back {
     display: block;
-    margin-bottom: 10px;
+    margin-top: 14px;
+    padding: 8px 0;
+    color: var(--ink-soft);
   }
 
-  .detail__tags {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-  }
-
-  .detail__tag {
-    font-family: var(--font-mono);
-    font-size: 12px;
-    font-weight: 600;
-    letter-spacing: 0.08em;
+  .doc__back:hover {
     color: var(--accent);
-    border: 1px solid var(--hairline);
-    border-radius: 4px;
-    padding: 5px 8px;
   }
 
-  .detail__next {
+  .doc__content {
     display: flex;
     flex-direction: column;
+    gap: 64px;
+    min-width: 0;
+  }
+
+  .features {
+    list-style: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 10px 28px;
+  }
+
+  @media (min-width: 700px) {
+    .features {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .features__item {
+    position: relative;
+    padding-left: 20px;
+    font-size: 13px;
+  }
+
+  .features__item::before {
+    content: '■';
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 9px;
+    line-height: 2.5;
+    color: var(--accent);
+  }
+
+  .schematic {
+    border: 1px solid var(--rule);
+    padding: 28px 18px 16px;
+    background: var(--paper-dim);
+  }
+
+  .schematic__chain {
+    display: flex;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    margin-top: 80px;
-    padding: 48px var(--gutter) 64px;
-    border-top: 1px solid var(--hairline);
+    gap: 0;
+    row-gap: 16px;
+    justify-content: center;
+  }
+
+  .schematic__node {
+    border: 1.5px solid var(--rule);
+    background: var(--paper);
+    padding: 12px 14px;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    white-space: nowrap;
+  }
+
+  .schematic__node--hot {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .schematic__wire {
+    width: 26px;
+    height: 1.5px;
+    background: var(--rule);
+    position: relative;
+  }
+
+  .schematic__wire::after {
+    content: '';
+    position: absolute;
+    right: 0;
+    top: -2.5px;
+    border-left: 5px solid var(--rule);
+    border-top: 3px solid transparent;
+    border-bottom: 3px solid transparent;
+  }
+
+  .schematic .fig {
+    margin-top: 20px;
+    font-size: 9.5px;
     text-align: center;
   }
 
-  .detail__next-title {
-    font-size: clamp(56px, 10vw, 120px);
+  .doc__blurb {
+    max-width: 640px;
+    font-size: 14.5px;
   }
 
-  .detail__next-arrow {
+  .doc__tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 18px;
+  }
+
+  .doc__pager {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 20px;
+    margin-top: 90px;
+    border-top: 2px solid var(--rule);
+    padding-top: 24px;
+  }
+
+  .doc__pager-link {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .doc__pager-link--next {
+    text-align: right;
+    margin-left: auto;
+  }
+
+  .doc__pager-name {
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: clamp(22px, 3.5vw, 34px);
+    text-transform: uppercase;
+  }
+
+  .doc__pager-name--accent {
     color: var(--accent);
-    transition: transform 0.3s;
-    display: inline-block;
   }
 
-  .detail__next:hover .detail__next-arrow {
-    transform: translateX(12px);
+  .doc__pager-link:hover .doc__pager-name {
+    text-decoration: underline;
+    text-decoration-thickness: 3px;
   }
 </style>

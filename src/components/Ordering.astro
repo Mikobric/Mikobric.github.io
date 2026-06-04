@@ -1,0 +1,77 @@
+---
+const rows = [
+  { key: 'COMMS LINK', value: 'BYNIUTEK@GMAIL.COM', href: 'mailto:byniutek@gmail.com' },
+  { key: 'SOURCE', value: 'GITHUB.COM/MIKOBRIC', href: 'https://github.com/Mikobric' },
+  { key: 'STATUS', value: 'OPEN FOR WORK', href: null },
+];
+---
+
+<section class="section wrap" id="ordering">
+  <div class="sec-head" data-reveal>
+    <span class="sec-head__no">4.0</span>
+    <span class="sec-head__title">ORDERING INFORMATION</span>
+    <span class="sec-head__meta label">PAGE 04</span>
+  </div>
+
+  <div class="order" data-reveal>
+    {
+      rows.map((row) => (
+        <div class="order__row">
+          <span class="label">{row.key} //</span>
+          {row.href ? (
+            <a class="order__value" href={row.href} target={row.href.startsWith('http') ? '_blank' : undefined} rel="noopener">
+              {row.value}
+            </a>
+          ) : (
+            <span class="order__value">{row.value}</span>
+          )}
+        </div>
+      ))
+    }
+    <a class="btn-accent" href="mailto:byniutek@gmail.com">TRANSMIT&nbsp;&nbsp;↗</a>
+  </div>
+
+  <p class="order__legal" data-reveal>
+    © 2026 MIKO — INFORMATION FURNISHED IS BELIEVED TO BE ACCURATE AND RELIABLE. HOWEVER, NO
+    RESPONSIBILITY IS ASSUMED FOR ITS USE. SPECIFICATIONS SUBJECT TO CHANGE WITHOUT NOTICE.
+    MADE IN PL.
+  </p>
+</section>
+
+<style>
+  .order {
+    border: 1px solid var(--rule);
+    max-width: 720px;
+  }
+
+  .order__row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 15px 16px;
+    border-bottom: 1px solid var(--rule-soft);
+  }
+
+  .order__value {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-align: right;
+  }
+
+  a.order__value:hover {
+    color: var(--accent);
+    text-decoration: underline;
+  }
+
+  .order__legal {
+    margin-top: 22px;
+    max-width: 720px;
+    font-size: 10px;
+    letter-spacing: 0.06em;
+    color: var(--ink-soft);
+    text-transform: uppercase;
+  }
+</style>

@@ -4,12 +4,23 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  docNo?: string;
+  sheet?: string;
 }
 
 const {
-  title = 'MIKO® WORKS — hardware portfolio',
+  title = 'MIKO® — HARDWARE SYSTEMS',
   description = 'Hardware maker portfolio: solar weather stations, RF pager networks, sensor experiments — and the software around them.',
+  docNo = 'MIKO-2026',
+  sheet = 'SHEET 1 OF 1',
 } = Astro.props;
+
+const nav = [
+  { no: '1.0', label: 'DESCRIPTION', href: '/#description' },
+  { no: '2.0', label: 'WORKS', href: '/#works' },
+  { no: '3.0', label: 'CHARACTERISTICS', href: '/#characteristics' },
+  { no: '4.0', label: 'ORDERING', href: '/#ordering' },
+];
 ---
 
 <!doctype html>
@@ -20,32 +31,55 @@ const {
     <meta name="description" content={description} />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta name="theme-color" content="#0a0a0b" />
+    <meta name="theme-color" content="#fbf9f3" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Anton&family=Hanken+Grotesk:wght@400;500;700&family=JetBrains+Mono:wght@400;600;700;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@500;700&family=JetBrains+Mono:wght@400;600;700;800&display=swap"
       rel="stylesheet"
     />
     <title>{title}</title>
   </head>
   <body>
-    <div class="grain" aria-hidden="true"></div>
-    <div class="cursor-dot" aria-hidden="true"></div>
+    <span class="regmark regmark--tl" aria-hidden="true"></span>
+    <span class="regmark regmark--tr" aria-hidden="true"></span>
+    <span class="regmark regmark--bl" aria-hidden="true"></span>
+    <span class="regmark regmark--br" aria-hidden="true"></span>
 
-    <header class="site-header">
-      <a href="/" class="site-header__brand">MIKO®</a>
-      <div class="site-header__status">
-        <span class="site-header__dot" aria-hidden="true"></span>
-        <span class="label label--ink">OPEN FOR WORK</span>
-      </div>
+    <div class="doc-strip">
+      <span class="doc-strip__brand">MIKO®</span>
+      <span class="doc-strip__meta">
+        DOC NO. {docNo}<span class="doc-strip__extra">&nbsp;&nbsp;|&nbsp;&nbsp;REV. A&nbsp;&nbsp;|&nbsp;&nbsp;{sheet}</span>
+      </span>
+    </div>
+
+    <header class="masthead">
+      <a href="/" class="masthead__brand display">
+        MIKO <span class="masthead__sep">//</span> HARDWARE SYSTEMS
+        <span class="masthead__square" aria-hidden="true"></span>
+      </a>
+      <nav class="masthead__nav">
+        {
+          nav.map((item) => (
+            <a href={item.href} class="masthead__link label">
+              <span class="label--accent">{item.no}</span> {item.label}
+            </a>
+          ))
+        }
+      </nav>
+      <a class="masthead__cta" href="mailto:byniutek@gmail.com">ORDER.SYS</a>
     </header>
 
     <slot />
 
+    <footer class="doc-footer">
+      <span>COPYRIGHT © 2026 MIKO MFG. ALL RIGHTS RESERVED.</span>
+      <span class="doc-footer__mid">END OF DOCUMENT</span>
+      <span>MADE IN PL&nbsp;&nbsp;|&nbsp;&nbsp;PRNT. DEPT.</span>
+    </footer>
+
     <script>
-      // Reveal on scroll — the IntersectionObserver twin of the app's reveal().
       const io = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -55,11 +89,10 @@ const {
             }
           }
         },
-        { threshold: 0.25 }
+        { threshold: 0.2 }
       );
       document.querySelectorAll('[data-reveal]').forEach((el) => io.observe(el));
 
-      // Rolling stat counters.
       const counterIo = new IntersectionObserver(
         (entries) => {
           for (const entry of entries) {
@@ -69,7 +102,7 @@ const {
             const target = Number(el.dataset.count ?? '0');
             const suffix = el.dataset.suffix ?? '';
             const start = performance.now();
-            const duration = 1400;
+            const duration = 1200;
             const tick = (now: number) => {
               const t = Math.min((now - start) / duration, 1);
               const eased = 1 - Math.pow(1 - t, 3);
@@ -82,61 +115,132 @@ const {
         { threshold: 0.6 }
       );
       document.querySelectorAll('[data-count]').forEach((el) => counterIo.observe(el));
-
-      // Custom cursor dot.
-      const dot = document.querySelector<HTMLElement>('.cursor-dot');
-      if (dot && matchMedia('(hover: hover) and (pointer: fine)').matches) {
-        addEventListener('mousemove', (e) => {
-          dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px) translate(-50%, -50%)`;
-        });
-        document.querySelectorAll('a, button').forEach((el) => {
-          el.addEventListener('mouseenter', () => dot.classList.add('on-link'));
-          el.addEventListener('mouseleave', () => dot.classList.remove('on-link'));
-        });
-      }
     </script>
 
     <style>
-      .site-header {
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        z-index: 100;
+      .doc-strip {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 14px var(--gutter);
-        background: linear-gradient(to bottom, rgba(0, 0, 0, 0.85), transparent);
+        padding: 6px var(--gutter);
+        border-bottom: 1px solid var(--rule-soft);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        color: var(--ink-soft);
+        text-transform: uppercase;
       }
 
-      .site-header__brand {
-        font-family: var(--font-mono);
-        font-size: 13px;
+      .doc-strip__brand {
         font-weight: 800;
-        letter-spacing: 0.2em;
         color: var(--ink);
       }
 
-      .site-header__status {
+      .doc-strip__meta {
+        white-space: nowrap;
+      }
+
+      .doc-strip__extra {
+        display: none;
+      }
+
+      @media (min-width: 640px) {
+        .doc-strip__extra {
+          display: inline;
+        }
+      }
+
+      .masthead {
+        position: sticky;
+        top: 0;
+        z-index: 90;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 24px;
+        padding: 14px var(--gutter);
+        background: var(--paper);
+        border-bottom: 2px solid var(--rule);
       }
 
-      .site-header__dot {
-        width: 6px;
-        height: 6px;
-        border-radius: 50%;
+      .masthead__brand {
+        font-size: 19px;
+        letter-spacing: 0;
+        white-space: nowrap;
+      }
+
+      .masthead__sep {
+        color: var(--accent);
+      }
+
+      .masthead__square {
+        display: inline-block;
+        width: 9px;
+        height: 9px;
         background: var(--accent);
-        box-shadow: 0 0 8px var(--accent);
-        animation: pulse 1.6s ease-in-out infinite;
+        margin-left: 2px;
       }
 
-      @keyframes pulse {
-        50% {
-          opacity: 0.25;
+      .masthead__nav {
+        display: none;
+        gap: 22px;
+        margin-left: auto;
+      }
+
+      @media (min-width: 900px) {
+        .masthead__nav {
+          display: flex;
         }
+      }
+
+      .masthead__link {
+        color: var(--ink);
+        transition: color 0.2s;
+      }
+
+      .masthead__link:hover {
+        color: var(--accent);
+      }
+
+      .masthead__cta {
+        margin-left: auto;
+        background: var(--accent);
+        color: var(--paper);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.18em;
+        padding: 10px 16px;
+        transition: background 0.2s;
+      }
+
+      @media (min-width: 900px) {
+        .masthead__cta {
+          margin-left: 0;
+        }
+      }
+
+      .masthead__cta:hover {
+        background: var(--ink);
+      }
+
+      .doc-footer {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        justify-content: space-between;
+        margin-top: 110px;
+        padding: 16px var(--gutter) 26px;
+        border-top: 2px solid var(--rule);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        color: var(--ink-soft);
+      }
+
+      .doc-footer__mid {
+        font-weight: 700;
+        color: var(--ink);
       }
     </style>
   </body>

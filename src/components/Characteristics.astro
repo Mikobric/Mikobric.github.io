@@ -1,0 +1,128 @@
+---
+const rows = [
+  { param: 'PROTOTYPES BUILT', min: '1', typ: 24, max: '—', unit: 'PCS', suffix: '' },
+  { param: 'SENSORS TAMED', min: '1', typ: 9, max: '—', unit: 'PCS', suffix: '' },
+  { param: 'LORA RANGE', min: '200', typ: 1800, max: '∞', unit: 'M', suffix: '' },
+  { param: 'SOLDER JOINTS', min: '—', typ: 9999, max: '∞', unit: 'JNT', suffix: '+' },
+  { param: 'OPERATING TEMP', min: '-20', typ: 21, max: '+60', unit: '°C', suffix: '' },
+];
+
+const capabilities = [
+  'HARDWARE DESIGN',
+  'FIRMWARE / C++',
+  'RF & PROTOCOLS',
+  'APPS / SWIFTUI',
+  'RAPID PROTOTYPING',
+];
+---
+
+<section class="section wrap" id="characteristics">
+  <div class="sec-head" data-reveal>
+    <span class="sec-head__no">3.0</span>
+    <span class="sec-head__title">ELECTRICAL CHARACTERISTICS</span>
+    <span class="sec-head__meta label">PAGE 03</span>
+  </div>
+
+  <div class="chars__scroll" data-reveal>
+    <table class="dtable">
+      <thead>
+        <tr>
+          <th>PARAMETER</th>
+          <th class="num">MIN</th>
+          <th class="num">TYP</th>
+          <th class="num">MAX</th>
+          <th class="num">UNIT</th>
+        </tr>
+      </thead>
+      <tbody>
+        {
+          rows.map((row) => (
+            <tr>
+              <td>{row.param}</td>
+              <td class="num">{row.min}</td>
+              <td class="num typ" data-count={row.typ} data-suffix={row.suffix}>
+                0
+              </td>
+              <td class="num">{row.max}</td>
+              <td class="num">{row.unit}</td>
+            </tr>
+          ))
+        }
+      </tbody>
+    </table>
+  </div>
+  <p class="fig label" data-reveal>
+    NOTE: VALUES MEASURED AT ROOM TEMPERATURE, COFFEE SUPPLY UNINTERRUPTED.
+  </p>
+
+  <div class="caps">
+    <div class="sec-head" data-reveal>
+      <span class="sec-head__no">3.1</span>
+      <span class="sec-head__title">CAPABILITIES</span>
+    </div>
+    {
+      capabilities.map((cap, i) => (
+        <div class="caps__row" data-reveal style={`--reveal-delay: ${i * 0.06}s`}>
+          <span class="caps__index">{String(i + 1).padStart(2, '0')}</span>
+          <span class="caps__name display">{cap}</span>
+          <span class="caps__check" aria-hidden="true">▣</span>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .chars__scroll {
+    overflow-x: auto;
+  }
+
+  .typ {
+    font-weight: 800;
+    color: var(--accent);
+  }
+
+  .fig {
+    margin-top: 12px;
+    font-size: 10px;
+  }
+
+  .caps {
+    margin-top: 72px;
+  }
+
+  .caps__row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 16px 6px;
+    border-bottom: 1px solid var(--rule-soft);
+    transition: padding-left 0.25s;
+  }
+
+  .caps__row:hover {
+    padding-left: 18px;
+  }
+
+  .caps__row:hover .caps__check {
+    color: var(--accent);
+  }
+
+  .caps__index {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--accent);
+  }
+
+  .caps__name {
+    font-size: clamp(26px, 4.5vw, 44px);
+  }
+
+  .caps__check {
+    margin-left: auto;
+    font-size: 18px;
+    color: var(--ink-soft);
+    transition: color 0.25s;
+  }
+</style>
