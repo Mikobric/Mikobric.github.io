@@ -3,6 +3,8 @@ export interface Spec {
   value: string;
 }
 
+export type Status = 'LIVE' | 'FIELD-TESTED' | 'ARCHIVED' | 'ONGOING';
+
 export interface Project {
   id: string;
   index: string;
@@ -11,14 +13,20 @@ export interface Project {
   subtitle: string;
   year: string;
   role: string;
-  status: string;
+  status: Status;
   blurb: string;
   tags: string[];
   specs: Spec[];
-  features: string[];
   chain: string[];
   palette: [string, string];
 }
+
+export const statusColor: Record<Status, string> = {
+  LIVE: '#33ff66',
+  'FIELD-TESTED': '#ffb000',
+  ONGOING: '#33d9ff',
+  ARCHIVED: '#7a8a7a',
+};
 
 export const projects: Project[] = [
   {
@@ -40,16 +48,8 @@ export const projects: Project[] = [
       { key: 'DISPLAY', value: 'TFT BASE STATION' },
       { key: 'CLIENTS', value: 'IOS + WEB' },
     ],
-    features: [
-      'Solar powered continuous operation',
-      'LoRa 433 MHz uplink telemetry',
-      'BME680 precision environmental sensing',
-      'Hall-effect anemometer wind sensing',
-      'TFT base station with forecast display',
-      'Native iOS + web client integration',
-    ],
     chain: ['BME680 + HALL', 'ESP32', 'LORA 433 MHZ', 'BASE STATION', 'IOS / WEB'],
-    palette: ['#1a47f2', '#00a6d9'],
+    palette: ['#4d7bff', '#33d9ff'],
   },
   {
     id: 'pager',
@@ -69,16 +69,8 @@ export const projects: Project[] = [
       { key: 'FEEDBACK', value: 'BUZZER + VIBRA' },
       { key: 'LATENCY', value: 'INSTANT' },
     ],
-    features: [
-      'Zero-infrastructure ESP-NOW broadcast',
-      'Fleet of pocket pagers, instant paging',
-      'Buzzer + vibration feedback',
-      'Fully offline — no router, no cloud, no SIM',
-      '3D-printed enclosures',
-      'Shop-floor field tested',
-    ],
     chain: ['STATION', 'ESP-NOW', 'PAGER FLEET', 'BUZZ + VIBRA'],
-    palette: ['#ff4d00', '#d90d26'],
+    palette: ['#ff6b35', '#ff3355'],
   },
   {
     id: 'longwave',
@@ -98,14 +90,8 @@ export const projects: Project[] = [
       { key: 'TERRAIN', value: 'URBAN + OPEN FIELD' },
       { key: 'OUTCOME', value: 'ZEPHYR RADIO LINK' },
     ],
-    features: [
-      'SX127X transmitter / receiver pairs',
-      'Spreading factor sweeps SF7–SF12',
-      'Antenna comparisons in the field',
-      'Urban vs. open-field range runs',
-    ],
     chain: ['TX SX127X', 'ANTENNA LAB', '1.8 KM AIR GAP', 'RX SX127X'],
-    palette: ['#7326e6', '#e633bf'],
+    palette: ['#9b5cff', '#ff4dd2'],
   },
   {
     id: 'sensorlab',
@@ -125,45 +111,28 @@ export const projects: Project[] = [
       { key: 'POWER MONITORING', value: 'INA219' },
       { key: 'TEMPERATURE', value: 'DS18B20' },
     ],
-    features: [
-      'BME280 / BME680 environmental bring-ups',
-      'INA219 power & current profiling',
-      'DS18B20 1-wire temperature chains',
-      'Hall-effect and battery monitoring rigs',
-    ],
     chain: ['SENSOR', 'I2C / 1-WIRE', 'ESP32', 'SERIAL LOG'],
-    palette: ['#00994d', '#1ad9b3'],
+    palette: ['#33ff66', '#1addb3'],
   },
   {
     id: 'meta',
     index: '05',
     partNo: 'MIKO-WEB-05',
     title: 'MIKO WORKS',
-    subtitle: 'THIS VERY SITE',
+    subtitle: 'THIS VERY TRANSMISSION',
     year: '2026',
     role: 'DESIGN / WEB',
     status: 'LIVE',
     blurb:
-      'The site you are looking at — and its iOS twin. Astro on the web, SwiftUI with custom Metal shaders on iPhone: liquid chrome typography, film grain, RGB-split glitch, mesh gradients. Designed with Google Stitch in the loop, built in code.',
-    tags: ['ASTRO', 'CSS', 'SWIFTUI', 'METAL', 'STITCH'],
+      'The site you are looking at — a dark-terminal rebuild. Astro static build, Lenis smooth scroll, a hand-rolled text decoder effect and zero framework JavaScript. Its predecessor was a Swiss-print datasheet; its sibling is an iOS app with Metal shaders.',
+    tags: ['ASTRO', 'TYPESCRIPT', 'LENIS', 'CSS', 'ZERO-FRAMEWORK'],
     specs: [
-      { key: 'WEB', value: 'ASTRO + VANILLA CSS' },
-      { key: 'IOS', value: 'SWIFTUI + METAL' },
-      { key: 'DESIGN LOOP', value: 'GOOGLE STITCH' },
+      { key: 'WEB', value: 'ASTRO + VANILLA TS' },
+      { key: 'SCROLL', value: 'LENIS' },
+      { key: 'TYPE', value: 'MARTIAN + JETBRAINS MONO' },
       { key: 'HOSTING', value: 'GITHUB PAGES' },
     ],
-    features: [
-      'Astro static build, zero framework JS',
-      'Datasheet design system from Google Stitch',
-      'SwiftUI + Metal shader iOS twin',
-      'Auto-deploy via GitHub Actions',
-    ],
-    chain: ['STITCH', 'CLAUDE CODE', 'ASTRO', 'GITHUB PAGES'],
-    palette: ['#bfc7d9', '#334de6'],
+    chain: ['CLAUDE CODE', 'ASTRO', 'GITHUB PAGES', 'YOUR EYES'],
+    palette: ['#e6f2e6', '#6991ff'],
   },
 ];
-
-export function nextProject(id: string): Project {
-  const index = projects.findIndex((p) => p.id === id);
-  return projects[(index + 1) % projects.length]!;
-}

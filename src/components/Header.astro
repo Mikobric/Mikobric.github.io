@@ -1,0 +1,31 @@
+---
+const nav = [
+  { idx: '01', label: 'Works', href: '#works', scene: 2 },
+  { idx: '02', label: 'Log', href: '#log', scene: 7 },
+  { idx: '03', label: 'Contact', href: '#contact', scene: 8 },
+];
+---
+
+<header class="site-header">
+  <a class="brand" href="#top" data-scene="0">MIKO®</a>
+
+  <div class="header-mid label">
+    <span>QTH PL</span>
+    <span id="clock">--:--:--</span>
+    <button class="egg-toggle" id="egg-toggle" aria-pressed="false">
+      Afterglow
+      <span class="sw"><i></i></span>
+    </button>
+  </div>
+
+  <nav class="site-nav" aria-label="Main">
+    {
+      nav.map((item) => (
+        <a class="link" href={item.href} data-scene={item.scene}>
+          <span class="idx">{item.idx}</span>
+          {item.label}
+        </a>
+      ))
+    }
+  </nav>
+</header>

@@ -1,0 +1,280 @@
+---
+import { projects, statusColor } from '../data/projects';
+import { log } from '../data/log';
+
+const circleText = 'SCROLL FOR SIGNAL · SCROLL FOR SIGNAL · ';
+const year = new Date().getFullYear();
+
+/* one frequency per scene — real ones: LoRa, ham calling, ESP-NOW/Wi-Fi,
+   I2C fast mode, FM broadcast, DCF77 time signal, the hydrogen line */
+const workFreqs = ['433.920 MHZ', '2.412 GHZ', '434.540 MHZ', '400.00 KHZ', '98.800 MHZ'];
+
+const channels = [
+  { name: 'OPENING', freq: '433.920 MHZ' },
+  { name: 'BRIEF', freq: '144.300 MHZ' },
+  ...projects.map((p, i) => ({ name: p.title, freq: workFreqs[i % 5]! })),
+  { name: 'LOG', freq: '77.500 KHZ' },
+  { name: 'CONTACT', freq: '1.420 GHZ' },
+];
+
+const legend = [
+  { label: 'LIVE — on air right now', color: statusColor.LIVE },
+  { label: 'FIELD-TESTED — survived the real world', color: statusColor['FIELD-TESTED'] },
+  { label: 'ONGOING — soldering in progress', color: statusColor.ONGOING },
+  { label: 'ARCHIVED — findings absorbed', color: statusColor.ARCHIVED },
+];
+---
+
+<div class="titlecard" id="titlecard" aria-hidden="true">
+  <div class="tc-inner">
+    <span class="tc-brand display tc-decode">MIKO®</span>
+    <span class="label tc-decode">SIG/2026 — A TRANSMISSION IN NINE SCENES</span>
+  </div>
+</div>
+
+<!-- analog-signal displacement filters, driven per-frame by the cut engine -->
+<svg class="fx-defs" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="disp-in" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.002 0.9" numOctaves="1" seed="7"
+      ></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"
+      ></feDisplacementMap>
+    </filter>
+    <filter id="disp-out" x="-20%" y="-20%" width="140%" height="140%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.002 0.9" numOctaves="1" seed="3"
+      ></feTurbulence>
+      <feDisplacementMap in="SourceGraphic" scale="0" xChannelSelector="R" yChannelSelector="G"
+      ></feDisplacementMap>
+    </filter>
+  </defs>
+</svg>
+
+<canvas id="noise" width="160" height="90" aria-hidden="true"></canvas>
+<div id="beam" aria-hidden="true"></div>
+<canvas id="globe" aria-hidden="true"></canvas>
+
+<div class="film">
+  <!-- 01 · opening -->
+  <section class="scene scene-hero" data-name="OPENING" data-freq="433.920 MHZ" id="top">
+    <div class="hero-meta label">
+      <span data-scramble>SIG/2026</span>
+      <span data-scramble>QTH: PL</span>
+      <span data-scramble>FREQ 433.92 MHZ</span>
+      <span data-scramble>MODE: OFFLINE-FIRST</span>
+    </div>
+
+    <h1 class="hero-title display">
+      <span class="line" data-decode>Hardware</span>
+      <span class="line" data-decode data-decode-delay="150">Maker —</span>
+      <span class="line accent" data-decode data-decode-delay="300">On air</span>
+    </h1>
+
+    <div class="hero-foot">
+      <p class="hero-sub">
+        <strong>Solar weather stations, RF pager networks, sensor experiments</strong> — and
+        the software around them. Designed, soldered, flashed and field-tested by hand.
+        No cloud where a radio link will do.
+      </p>
+
+      <span class="text-circle" aria-hidden="true">
+        <svg viewBox="0 0 120 120">
+          <defs>
+            <path
+              id="circlePath"
+              d="M 60,60 m -43,0 a 43,43 0 1,1 86,0 a 43,43 0 1,1 -86,0"></path>
+          </defs>
+          <text>
+            <textPath href="#circlePath">{circleText}</textPath>
+          </text>
+        </svg>
+        <span class="arrow">↓</span>
+      </span>
+    </div>
+  </section>
+
+  <!-- 02 · brief -->
+  <section
+    class="scene scene-brief"
+    data-fx="vroll"
+    data-name="BRIEF"
+    data-freq="144.300 MHZ"
+    id="brief"
+  >
+    <div class="scene-head">
+      <span class="label" data-scramble>Brief</span>
+      <span class="label" data-scramble>RX OK</span>
+    </div>
+
+    <p class="brief-text st">
+      I build small machines that <em>talk over the air</em> — and the firmware,
+      dashboards and apps that listen to them.
+    </p>
+
+    <ul class="legend st" style="--d: 0.12s">
+      {
+        legend.map((item) => (
+          <li class="label label--ink">
+            <span class="dot" style={`--c: ${item.color}`} />
+            {item.label}
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+
+  <!-- 03–07 · works -->
+  {
+    projects.map((p, i) => (
+      <section
+        class="scene scene-project"
+        data-fx={['swap', 'sweep', 'collapse', 'tear', 'ghost'][i % 5]}
+        data-name={p.title}
+        data-freq={workFreqs[i % 5]}
+        id={i === 0 ? 'works' : undefined}
+        style={`--p1: ${p.palette[0]}; --p2: ${p.palette[1]}; --tint: ${p.palette[0]}`}
+      >
+        <div class="scene-head">
+          <span class="label" data-scramble>
+            {p.partNo}
+          </span>
+          <span class="label" data-scramble>
+            WORK {p.index} / 0{projects.length}
+          </span>
+        </div>
+
+        <h2 class="proj-title display mask">
+          <span class="mask-inner">{p.title}</span>
+        </h2>
+        <div class="proj-bar st" style="--d: 0.06s" />
+
+        <div class="proj-meta st" style="--d: 0.1s">
+          <span class="label label--ink">{p.subtitle}</span>
+          <span class="label">{p.year}</span>
+          <span class="label">{p.role}</span>
+          <span class="status label label--ink">
+            <span class="dot" style={`--c: ${statusColor[p.status]}`} />
+            {p.status}
+          </span>
+        </div>
+
+        <div class="proj-cols st" style="--d: 0.15s">
+          <div class="proj-blurb">
+            {p.blurb}
+            <span class="proj-chain">{p.chain.join('  →  ')}</span>
+            <span class="tags">
+              {p.tags.map((tag) => (
+                <span>{tag}</span>
+              ))}
+            </span>
+          </div>
+          <table class="spec-table">
+            <tbody>
+              {p.specs.map((spec) => (
+                <tr>
+                  <td>{spec.key}</td>
+                  <td>{spec.value}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    ))
+  }
+
+  <!-- 08 · transmission log -->
+  <section
+    class="scene scene-log"
+    data-fx="roll"
+    data-name="LOG"
+    data-freq="77.500 KHZ"
+    id="log"
+  >
+    <div class="scene-head">
+      <span class="label" data-scramble>Transmission log</span>
+      <span class="label" data-scramble>NEWEST FIRST</span>
+    </div>
+
+    <div class="log-grid">
+      {
+        log.map((group, gi) => (
+          <div class="st" style={`--d: ${gi * 0.1}s`}>
+            <div class="log-year-label">{group.year}</div>
+            <ul class="log-entries">
+              {group.entries.map((entry) => (
+                <li class="log-entry">
+                  <span class="date">{entry.date}</span>
+                  <span class="msg">{entry.message}</span>
+                  {entry.status && (
+                    <span class="dot" style={`--c: ${statusColor[entry.status]}`} />
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <!-- 09 · contact -->
+  <section
+    class="scene scene-contact"
+    data-fx="carrier"
+    data-name="CONTACT"
+    data-freq="1.420 GHZ"
+    id="contact"
+  >
+    <div class="scene-head">
+      <span class="label" data-scramble>Establish link</span>
+    </div>
+
+    <h2 class="contact-title display">
+      <span class="line mask"><span class="mask-inner">Calling all</span></span>
+      <span class="line accent mask"><span class="mask-inner" style="--d: 0.09s">stations</span></span>
+    </h2>
+
+    <a class="contact-mail st" style="--d: 0.1s" href="mailto:byniutek@gmail.com"
+      >byniutek@gmail.com</a
+    >
+
+    <div class="contact-links st" style="--d: 0.18s">
+      <a class="link" href="https://github.com/Mikobric" target="_blank" rel="noopener"
+        >GitHub ↗</a
+      >
+      <a class="link" href="mailto:byniutek@gmail.com">Email ↗</a>
+      <span class="label">QSL CARD ON REQUEST</span>
+    </div>
+
+    <div class="contact-foot label st" style="--d: 0.26s">
+      <span>MIKO® — TRANSMITTING FROM PL</span>
+      <span>BUILT WITH ASTRO</span>
+      <span>© {year} — END OF TRANSMISSION</span>
+    </div>
+  </section>
+</div>
+
+<div class="film-track" aria-hidden="true"></div>
+
+<div class="hud" aria-hidden="true">
+  <span class="frame">01 / 09</span>
+  <span class="name">OPENING</span>
+  <div class="tuner">
+    <div class="dial">
+      <div class="dial-strip" id="dial-strip">
+        {
+          channels.map((c) => (
+            <span class="ch">
+              <em>{c.freq}</em>
+            </span>
+          ))
+        }
+      </div>
+      <span class="needle"></span>
+    </div>
+    <span class="freq">433.920 MHZ</span>
+    <span class="rssi"><i></i><i></i><i></i><i></i><i></i></span>
+    <span class="lock">TUNED</span>
+  </div>
+</div>

@@ -1,34 +1,12 @@
 ---
 import Base from '../layouts/Base.astro';
-import Hero from '../components/Hero.astro';
-import Description from '../components/Description.astro';
-import Works from '../components/Works.astro';
-import Characteristics from '../components/Characteristics.astro';
-import Ordering from '../components/Ordering.astro';
+import Header from '../components/Header.astro';
+import Film from '../components/Film.astro';
 ---
 
 <Base>
+  <Header />
   <main>
-    <Hero />
-    <Description />
-    <Works />
-    <Characteristics />
-    <div class="tape" aria-hidden="true">
-      {
-        [0, 1].map(() => (
-          <div class="tape__strip">
-            <span>ACCEPTING COMMISSIONS</span>
-            <span class="acc">✦</span>
-            <span>HARDWARE / FIRMWARE / RF</span>
-            <span class="acc">✦</span>
-            <span>EST. 2026 — POLAND</span>
-            <span class="acc">✦</span>
-            <span>DOC NO. MIKO-2026</span>
-            <span class="acc">✦</span>
-          </div>
-        ))
-      }
-    </div>
-    <Ordering />
+    <Film />
   </main>
 </Base>
