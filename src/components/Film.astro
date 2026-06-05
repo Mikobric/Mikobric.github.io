@@ -205,7 +205,13 @@ const legend = [
               {group.entries.map((entry) => (
                 <li class="log-entry">
                   <span class="date">{entry.date}</span>
-                  <span class="msg">{entry.message}</span>
+                  {entry.href ? (
+                    <a class="msg" href={entry.href}>
+                      {entry.message}
+                    </a>
+                  ) : (
+                    <span class="msg">{entry.message}</span>
+                  )}
                   {entry.status && (
                     <span class="dot" style={`--c: ${statusColor[entry.status]}`} />
                   )}

@@ -4,6 +4,7 @@ export interface LogEntry {
   date: string;
   message: string;
   status?: Status;
+  href?: string;
 }
 
 export interface LogYear {
@@ -16,6 +17,7 @@ export const log: LogYear[] = [
     year: '2026',
     entries: [
       { date: '2026.06', message: 'MIKO WORKS V2 — DARK TERMINAL REBUILD ON AIR', status: 'LIVE' },
+      { date: '2026.06', message: 'SITE V1 ARCHIVED — DATASHEET ERA → /V1', status: 'ARCHIVED', href: '/v1/' },
       { date: '2026.05', message: 'MIKOPORTFOLIO IOS — METAL SHADERS SHIPPED' },
       { date: '2026.04', message: 'PAGER — ACTIVE-LOW BUZZER MODULES SUPPORTED' },
       { date: '2026.03', message: 'PAGER FLEET DEPLOYED — SHOP FLOOR, ZERO INFRA', status: 'FIELD-TESTED' },
