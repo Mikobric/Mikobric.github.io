@@ -1,0 +1,185 @@
+---
+/* LAB — synoptic globe prototype. Standalone page: no Base layout on purpose,
+   so the film engine (main.ts) stays out and the globe can be tuned in isolation. */
+import '@fontsource/space-mono/400.css';
+import '@fontsource/space-mono/700.css';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#0b0d0b" />
+    <title>LAB — SYNOPTIC GLOBE</title>
+  </head>
+  <body>
+    <main>
+      <canvas id="field" aria-hidden="true"></canvas>
+      <canvas id="overlay" aria-hidden="true"></canvas>
+
+      <header class="hud">
+        <strong>MIKO LAB — SYNOPTIC GLOBE</strong>
+        <span>[H] PANEL · [S] SEEK · [SPACE] FREEZE FIELD</span>
+      </header>
+
+      <!-- easter eggs: real numbers only — the AI-gen reference had -892°C, we do better -->
+      <footer class="hud captions">
+        <span>QTH 52°N 19°E</span>
+        <span>REC LOW &minus;89.2&deg;C — VOSTOK 1983-07-21</span>
+        <span>REC PRES 870 hPa — TYPHOON TIP 1979-10-12</span>
+        <span>REC HIGH 1083.8 hPa — AGATA 1968-12-31</span>
+      </footer>
+
+      <aside id="panel"></aside>
+    </main>
+
+    <script src="../scripts/lab-globe.ts"></script>
+
+    <style is:global>
+      /* global on purpose: the panel rows are built by lab-globe.ts,
+         so Astro's scoped styles would never reach them */
+      :root {
+        --bg: #0b0d0b;
+        --ink: #e6f2e6;
+        --dim: #7c8a7c;
+        --green: #33ff66;
+        --amber: #ffb000;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        height: 100%;
+        overflow: hidden;
+        overscroll-behavior: none;
+      }
+
+      body {
+        background: var(--bg);
+        color: var(--ink);
+        font-family: 'Space Mono', monospace;
+        font-size: 11px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      main {
+        position: fixed;
+        inset: 0;
+      }
+
+      #field {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        translate: -50% -50%;
+      }
+
+      #overlay {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      .hud {
+        position: absolute;
+        left: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        letter-spacing: 0.08em;
+        z-index: 2;
+      }
+
+      .hud strong {
+        color: var(--ink);
+        font-weight: 700;
+      }
+
+      .hud span {
+        color: var(--dim);
+      }
+
+      header.hud {
+        top: 20px;
+      }
+
+      footer.captions {
+        bottom: 20px;
+      }
+
+      #panel {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        width: 230px;
+        padding: 12px 14px;
+        background: rgba(11, 13, 11, 0.85);
+        border: 1px solid rgba(230, 242, 230, 0.14);
+        z-index: 2;
+      }
+
+      #panel.hidden {
+        display: none;
+      }
+
+      #panel .row {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 2px 8px;
+        margin-bottom: 8px;
+      }
+
+      #panel .row label {
+        color: var(--dim);
+        letter-spacing: 0.08em;
+      }
+
+      #panel .row output {
+        color: var(--green);
+        text-align: right;
+      }
+
+      #panel .row input[type='range'] {
+        grid-column: 1 / -1;
+        width: 100%;
+        accent-color: #33ff66;
+      }
+
+      #panel .btns {
+        display: flex;
+        gap: 6px;
+        margin-top: 4px;
+      }
+
+      #panel .btns button {
+        flex: 1;
+        font: inherit;
+        letter-spacing: 0.08em;
+        color: var(--dim);
+        background: none;
+        border: 1px solid rgba(230, 242, 230, 0.14);
+        padding: 4px 0;
+        cursor: pointer;
+      }
+
+      #panel .btns button.on {
+        color: var(--amber);
+        border-color: var(--amber);
+      }
+
+      #panel .fps {
+        color: var(--dim);
+        text-align: right;
+        margin-bottom: 8px;
+      }
+    </style>
+  </body>
+</html>

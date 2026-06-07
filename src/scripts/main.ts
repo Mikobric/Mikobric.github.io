@@ -1,8 +1,13 @@
+import { FIELD_DEFAULTS, createSynoptic, createExtremaTracker } from './synoptic';
+import { MESH_DEFAULTS, createMeshMap } from './meshmap';
+
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------- text decoder (the "hacker" effect) ---------- */
 
-const CHARS = '!<>-_\\/[]{}—=+*^?#@$%&01';
+/* teletype noise: block glyphs + sync marks — the scramble reads as a
+   tearing broadcast signal rather than a generic "hacker" effect */
+const CHARS = '░▒▓█▌▐│┤<>=+·—01';
 
 function decode(el: HTMLElement, duration = 800): void {
   const original = el.textContent ?? '';
@@ -126,13 +131,15 @@ if (!filmMode) {
   /* ---- static-noise burst layer ---- */
   const noise = document.getElementById('noise') as HTMLCanvasElement | null;
   const noiseCtx = noise?.getContext('2d') ?? null;
+  /* one reusable buffer — a fresh ImageData per frame is pure GC churn,
+     and the collector would stall exactly when a cut is playing */
+  const noiseImg = noiseCtx?.createImageData(160, 90) ?? null;
 
   const drawNoise = (alpha: number): void => {
-    if (!noise || !noiseCtx || lite) return;
+    if (!noise || !noiseCtx || !noiseImg || lite) return;
     noise.style.opacity = alpha.toFixed(3);
     if (alpha <= 0.01) return;
-    const img = noiseCtx.createImageData(160, 90);
-    const d = img.data;
+    const d = noiseImg.data;
     for (let k = 0; k < d.length; k += 4) {
       const v = (Math.random() * 255) | 0;
       d[k] = v;
@@ -140,7 +147,7 @@ if (!filmMode) {
       d[k + 2] = v;
       d[k + 3] = 255;
     }
-    noiseCtx.putImageData(img, 0, 0);
+    noiseCtx.putImageData(noiseImg, 0, 0);
   };
 
   /* ---- scan beam ---- */
@@ -168,6 +175,23 @@ if (!filmMode) {
   };
 
   let seekingNow = false;
+
+  /* after a cut lands, the needle overshoots past the channel and damps
+     back — the little "catch" that sells locking onto a station */
+  let settleRaf = 0;
+  const settleDial = (pos: number, dir: number): void => {
+    cancelAnimationFrame(settleRaf);
+    const t0 = performance.now();
+    const dur = 360;
+    const tick = (now: number): void => {
+      if (animating) return; /* a new cut owns the dial now */
+      const t = Math.min(1, (now - t0) / dur);
+      const damp = (1 - t) * (1 - t);
+      setDial(pos, Math.sin(t * Math.PI * 2.5) * damp * -dir * 5);
+      if (t < 1) settleRaf = requestAnimationFrame(tick);
+    };
+    settleRaf = requestAnimationFrame(tick);
+  };
 
   const setLock = (tuned: boolean): void => {
     seekingNow = !tuned;
@@ -374,17 +398,47 @@ if (!filmMode) {
     if (frameEl) {
       frameEl.textContent = `${String(idx + 1).padStart(2, '0')} / ${String(N).padStart(2, '0')}`;
     }
-    if (nameEl) nameEl.textContent = scene.dataset.name ?? '';
+    const name = scene.dataset.name ?? '';
+    if (nameEl && nameEl.textContent !== name) {
+      /* fixed-width slot (CSS min-width) + a short crossfade — the rest of
+         the tuner cluster must not move when the label changes mid-cut */
+      nameEl.style.opacity = '0';
+      setTimeout(() => {
+        nameEl.textContent = name;
+        nameEl.style.opacity = '';
+      }, 75);
+    }
     if (!scene.classList.contains('on')) {
       scene.classList.add('on');
       scene.querySelectorAll<HTMLElement>('[data-scramble]').forEach((el) => decode(el, 550));
     }
   };
 
+  /* express path: land on a scene instantly — no film, no waiting.
+     Used by the number keys; mirrors what deep links do on load. */
+  const jumpTo = (idx: number): void => {
+    if (animating || idx === current || idx < 0 || idx >= N) return;
+    current = idx;
+    settleStates();
+    activate(current);
+    if (freqEl) freqEl.textContent = scenes[current]!.dataset.freq ?? '';
+    setDial(current);
+    setRssi(5);
+    setLock(true);
+    meshJump(current);
+  };
+
   /* ---- timed cut player: one gesture = one full, designed transition ---- */
 
   /* the globe layer hooks in here; real implementation assigned below */
   let globeGo: (idx: number, dir: number) => void = () => {};
+  /* the network-map layer: cut flight + instant deep-link jump */
+  let meshGo: (scene: number) => void = () => {};
+  let meshJump: (scene: number) => void = () => {};
+
+  /* a second gesture mid-cut fast-forwards the remaining timeline instead
+     of being swallowed — assigned per-cut by playCut, no-op between cuts */
+  let fastForward: () => void = () => {};
 
   const playCut = (target: number): void => {
     if (animating || target === current || target < 0 || target >= N) return;
@@ -394,18 +448,32 @@ if (!filmMode) {
     const out = forward ? scenes[current]! : scenes[target]!;
     const fxName = inc.dataset.fx ?? 'swap';
     const cut = cuts[fxName] ?? cuts.swap!;
-    const dur = DUR[fxName] ?? 1000;
+    let dur = DUR[fxName] ?? 1000;
     const tuneFreq = scenes[target]!.dataset.freq ?? '';
 
     animating = true;
+    /* z-order flip: scenes drop under the constellation for the flight */
+    document.documentElement.classList.add('cutting');
     inc.dataset.state = 'incoming';
     out.dataset.state = 'current';
     setLock(false);
     globeGo(target, forward ? 1 : -1);
+    meshGo(target);
 
     const from = current;
-    const start = performance.now();
+    let start = performance.now();
     let activated = false;
+    let ffwd = false;
+
+    /* impatience compresses what's left of the cut to a quarter, from the
+       current frame — the cut still completes, just visibly faster */
+    fastForward = (): void => {
+      if (!animating || ffwd) return;
+      ffwd = true;
+      const t0 = Math.min(1, (performance.now() - start) / dur);
+      dur = Math.max(150, dur * 0.25);
+      start = performance.now() - t0 * dur;
+    };
 
     const step = (now: number): void => {
       const t = Math.min(1, (now - start) / dur);
@@ -431,8 +499,9 @@ if (!filmMode) {
       } else {
         current = target;
         settleStates();
+        document.documentElement.classList.remove('cutting');
         if (freqEl) freqEl.textContent = tuneFreq;
-        setDial(current);
+        settleDial(current, forward ? 1 : -1);
         setRssi(5);
         setLock(true);
         if (cursorDot) cursorDot.style.translate = '';
@@ -495,6 +564,9 @@ if (!filmMode) {
       }
       const now = performance.now();
       if (animating) {
+        /* a fresh flick mid-cut (quiet gap = a separate gesture, not the
+           inertia tail) is a clear "skip ahead" — fast-forward the cut */
+        if (now - lastWheelAt > 200) fastForward();
         lastWheelAt = now;
         return;
       }
@@ -540,17 +612,30 @@ if (!filmMode) {
         touchUsed = true;
         return;
       }
-      if (touchUsed || animating) return;
+      if (touchUsed) return;
       const dy = touchY - (e.touches[0]?.clientY ?? 0);
-      if (Math.abs(dy) > 50) {
-        touchUsed = true;
-        playCut(current + (dy > 0 ? 1 : -1));
+      if (Math.abs(dy) <= 50) return;
+      touchUsed = true;
+      if (animating) {
+        /* a second swipe mid-cut fast-forwards it */
+        fastForward();
+        return;
       }
+      playCut(current + (dy > 0 ? 1 : -1));
     },
     { passive: false },
   );
 
   window.addEventListener('keydown', (e: KeyboardEvent) => {
+    /* number keys tune straight to a scene — the power-user express lane */
+    if (e.key >= '1' && e.key <= '9' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+      const idx = Number(e.key) - 1;
+      if (idx >= N) return;
+      e.preventDefault();
+      if (!tcDone) dismissTitlecard();
+      jumpTo(idx);
+      return;
+    }
     const next = ['ArrowDown', 'PageDown'].includes(e.key) || (e.key === ' ' && !e.shiftKey);
     const prev = ['ArrowUp', 'PageUp'].includes(e.key) || (e.key === ' ' && e.shiftKey);
     const home = e.key === 'Home';
@@ -559,6 +644,11 @@ if (!filmMode) {
     e.preventDefault();
     if (!tcDone) {
       dismissTitlecard();
+      return;
+    }
+    if (animating) {
+      /* repeat key mid-cut = impatience — finish the cut fast */
+      fastForward();
       return;
     }
     if (home) playCut(0);
@@ -685,15 +775,40 @@ if (!filmMode) {
 
   const globe = document.getElementById('globe') as HTMLCanvasElement | null;
 
-  if (globe && !lite) {
+  /* layer switch: the network map (meshmap.ts) currently fronts the film;
+     the synoptic globe below is kept fully intact — flip the flag to bring
+     it back (or to run both) */
+  const GLOBE_LAYER = false;
+  const MESH_LAYER = true;
+
+  if (globe && !lite && GLOBE_LAYER) {
     const gtx = globe.getContext('2d');
     const dpr = Math.min(2, window.devicePixelRatio || 1);
     let GW = 0;
     let GH = 0;
 
+    /* the isobar field (WebGL, see synoptic.ts) replaces the hand-drawn
+       grid; no WebGL2 -> the wireframe below still works as the fallback */
+    const synCanvas = document.getElementById('synoptic') as HTMLCanvasElement | null;
+    const synoptic = synCanvas ? createSynoptic(synCanvas) : null;
+    const tracker = synoptic ? createExtremaTracker() : null;
+    const FIELD = FIELD_DEFAULTS;
+    let synSide = 0; /* square field canvas, CSS px */
+    let fieldTime = 0;
+    let lastFrameMs = performance.now();
+    let lastScanMs = 0;
+
     const fitGlobe = (): void => {
       GW = globe.width = Math.round(window.innerWidth * dpr);
       GH = globe.height = Math.round(window.innerHeight * dpr);
+      if (synoptic && synCanvas) {
+        const rMax = Math.min(GW, GH) * 0.3 * 1.15; /* largest POSES scale */
+        const sideDev = Math.ceil(rMax * 2.35);
+        synoptic.fit(sideDev);
+        synSide = sideDev / dpr;
+        synCanvas.style.width = `${synSide}px`;
+        synCanvas.style.height = `${synSide}px`;
+      }
     };
     fitGlobe();
     window.addEventListener('resize', fitGlobe);
@@ -780,6 +895,11 @@ if (!filmMode) {
     const drawGlobe = (): void => {
       if (!gtx || document.hidden) return;
 
+      const nowMs = performance.now();
+      const dt = Math.min(0.1, (nowMs - lastFrameMs) / 1000);
+      lastFrameMs = nowMs;
+      fieldTime += dt * FIELD.speed; /* pressure systems morph in real time */
+
       /* glide toward the scene's pose; spin gets a decaying kick per cut */
       poseNow.x += (poseTarget.x - poseNow.x) * 0.055;
       poseNow.y += (poseTarget.y - poseNow.y) * 0.055;
@@ -787,7 +907,7 @@ if (!filmMode) {
       poseNow.a += (poseTarget.a - poseNow.a) * 0.055;
       tilt += (tiltTarget - tilt) * 0.04;
       yaw += (yawTarget - yaw) * 0.04;
-      spin += 0.0028 + kick * 0.045;
+      spin += 0.0024 + kick * 0.045;
       kick *= 0.94;
       satAngle += 0.008;
 
@@ -805,29 +925,51 @@ if (!filmMode) {
       gtx.globalAlpha = Math.max(0, Math.min(1, poseNow.a));
       gtx.lineWidth = dpr;
 
-      const seg = (a: P3, b: P3): void => {
-        const zAvg = (a.z + b.z) / 2;
-        gtx.strokeStyle = `rgba(${grid}, ${zAvg > 0 ? 0.18 : 0.05})`;
-        gtx.beginPath();
-        gtx.moveTo(X(a), Y(a));
-        gtx.lineTo(X(b), Y(b));
-        gtx.stroke();
-      };
+      if (synoptic && synCanvas) {
+        /* isobar field: ride the pose (and the SEEK shake) via transform,
+           everything else happens in the shader */
+        const tx = cx / dpr - synSide / 2 + J() / dpr;
+        const ty = cy / dpr - synSide / 2 + J() / dpr;
+        synCanvas.style.transform = `translate(${tx}px, ${ty}px)`;
+        synoptic.draw({
+          radius: R,
+          time: fieldTime,
+          spin: spin + yaw,
+          tilt,
+          scale: FIELD.scale,
+          levels: FIELD.levels,
+          lineAlpha: FIELD.lineAlpha,
+          gratAlpha: FIELD.gratAlpha,
+          dash: FIELD.dash,
+          seek: seekingNow ? 1 : 0,
+          alpha: Math.max(0, Math.min(1, poseNow.a)),
+        });
+      } else {
+        /* fallback: the original hand-drawn wireframe grid */
+        const seg = (a: P3, b: P3): void => {
+          const zAvg = (a.z + b.z) / 2;
+          gtx.strokeStyle = `rgba(${grid}, ${zAvg > 0 ? 0.18 : 0.05})`;
+          gtx.beginPath();
+          gtx.moveTo(X(a), Y(a));
+          gtx.lineTo(X(b), Y(b));
+          gtx.stroke();
+        };
 
-      for (let lat = -75; lat <= 75; lat += 15) {
-        let prev = project(lat, 0, R);
-        for (let lon = 10; lon <= 360; lon += 10) {
-          const cur = project(lat, lon, R);
-          seg(prev, cur);
-          prev = cur;
+        for (let lat = -75; lat <= 75; lat += 15) {
+          let prev = project(lat, 0, R);
+          for (let lon = 10; lon <= 360; lon += 10) {
+            const cur = project(lat, lon, R);
+            seg(prev, cur);
+            prev = cur;
+          }
         }
-      }
-      for (let lon = 0; lon < 360; lon += 15) {
-        let prev = project(-90, lon, R);
-        for (let lat = -80; lat <= 90; lat += 10) {
-          const cur = project(lat, lon, R);
-          seg(prev, cur);
-          prev = cur;
+        for (let lon = 0; lon < 360; lon += 15) {
+          let prev = project(-90, lon, R);
+          for (let lat = -80; lat <= 90; lat += 10) {
+            const cur = project(lat, lon, R);
+            seg(prev, cur);
+            prev = cur;
+          }
         }
       }
 
@@ -896,6 +1038,30 @@ if (!filmMode) {
         gtx.stroke();
         gtx.setLineDash([]);
       }
+
+      /* H/L pressure centres — world-anchored extrema of the same field
+         the shader draws; only when the globe is big enough to star */
+      if (tracker && R > 110 * dpr) {
+        if (nowMs - lastScanMs > 250) {
+          lastScanMs = nowMs;
+          tracker.scan(FIELD.scale, fieldTime, nowMs);
+        }
+        const fs = R * 0.085;
+        for (const l of tracker.labels()) {
+          const lp = project(l.lat, l.lon, R);
+          if (lp.z < 0.18 * R) continue;
+          if (Math.hypot(lp.x, lp.y) > 0.8 * R) continue;
+          const la = Math.min(1, (lp.z / R - 0.18) / 0.25);
+          gtx.textAlign = 'center';
+          gtx.font = `700 ${fs}px 'Space Mono', monospace`;
+          gtx.fillStyle = `rgba(${grid}, ${0.95 * la})`;
+          gtx.fillText(l.kind, X(lp), Y(lp));
+          gtx.font = `${fs * 0.45}px 'Space Mono', monospace`;
+          gtx.fillStyle = `rgba(${acc}, ${0.8 * la})`;
+          gtx.fillText(String(l.val), X(lp), Y(lp) + fs * 0.62);
+        }
+        gtx.textAlign = 'left';
+      }
     };
 
     const globeLoop = (): void => {
@@ -903,6 +1069,48 @@ if (!filmMode) {
       requestAnimationFrame(globeLoop);
     };
     requestAnimationFrame(globeLoop);
+  }
+
+  /* ---- network map: the constellation the film travels through ----
+     every cut is a camera flight across the mesh into the next station;
+     BRIEF pulls back to the overview of the whole net. See meshmap.ts. */
+  const meshCanvas = document.getElementById('meshmap') as HTMLCanvasElement | null;
+
+  if (meshCanvas && !lite && MESH_LAYER) {
+    const mm = createMeshMap(meshCanvas, { ...MESH_DEFAULTS }, {
+      getSeek: () => seekingNow,
+      /* fallback parking spot — SCENE_PARK below overrides it per scene */
+      focusOffset: { x: 0.22, y: -0.2 },
+      compactNeighbors: true,
+    });
+    if (mm) {
+      /* film scene -> story node; -1 = no station, fly to the overview */
+      const SCENE_NODE = [0, -1, 1, 2, 3, 4, 5, 6, 7];
+      /* where the focused station box parks on each scene (viewport
+         fractions off centre) — hand-placed into that scene's clear
+         real estate so the box never sits inside the typography */
+      const SCENE_PARK: Array<{ x: number; y: number }> = [
+        { x: -0.2, y: -0.38 },  // opening — above the title, left of centre
+        { x: 0, y: 0 },         // brief — overview, unused
+        { x: 0.22, y: -0.2 },   // zephyr — upper right, above the title
+        { x: 0.22, y: -0.2 },   // pager
+        { x: 0.22, y: -0.2 },   // longwave
+        { x: 0.22, y: -0.2 },   // sensor lab
+        { x: 0.22, y: -0.2 },   // miko works
+        { x: 0.05, y: -0.36 },  // log — thin clear band above the columns
+        { x: 0.26, y: -0.26 },  // contact — right of the head, above title
+      ];
+      meshGo = (scene: number): void => {
+        const t = SCENE_NODE[scene] ?? -1;
+        if (t < 0) mm.flyOverview();
+        else mm.flyTo(t, SCENE_PARK[scene]);
+      };
+      meshJump = (scene: number): void => {
+        const t = SCENE_NODE[scene] ?? -1;
+        if (t < 0) mm.flyOverview();
+        else mm.jumpTo(t, SCENE_PARK[scene]);
+      };
+    }
   }
 
   /* nav → scene */
@@ -916,9 +1124,11 @@ if (!filmMode) {
   /* deep link: #works etc. lands on its scene instantly */
   const hashIdx = scenes.findIndex((s) => s.id && `#${s.id}` === window.location.hash);
   if (hashIdx > 0) current = hashIdx;
+  meshJump(current);
 
   settleStates();
   activate(current);
+  if (freqEl) freqEl.textContent = scenes[current]?.dataset.freq ?? '';
   setDial(current);
   setRssi(5);
   setLock(true);

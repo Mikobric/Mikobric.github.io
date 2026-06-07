@@ -42,15 +42,36 @@ z drżeniem, cyfry szumią, RSSI spada i migocze, status przechodzi w bursztynow
 `SEEK`; po dostrojeniu wszystko „łapie". Na touch/mobile tryb lite (bez
 displacement/szumu/blura; skala ukryta, zostaje odczyt + RSSI).
 
-**3D — wektorowy glob:** ręcznie pisana projekcja sferyczna na canvasie (zero
-zależności, ~150 linii; wersja fotorealistyczna z three.js została odrzucona —
-gryzła się z identyfikacją). Siatka południków/równoleżników jak na ekranie
-wektorowym, beacon `QTH` na Polsce, **mały satelita (korpus + panele słoneczne)**
-na szerokiej orbicie 55° z delikatnym torem i kreskowanym uplinkiem, pochylanie
-za myszą. Glob **wędruje przez film**: każda scena ma wyreżyserowaną pozę
+**3D — glob synoptyczny:** kula-mapa pogodowa jak z biuletynu meteo. Pole
+4D value noise renderowane jako **izobary we fragment shaderze** (WebGL2,
+ray-traced sfera bez geometrii — `synoptic.ts`, zero zależności; wersja
+fotorealistyczna z three.js została odrzucona — gryzła się z identyfikacją).
+Czwarty wymiar szumu to czas: układy baryczne **morfują na żywo** jak prawdziwa
+pogoda. Pod konturami bardzo wygaszona siatka geograficzna; co 5. poziomica
+grubsza (konwencja synoptyczna). Hash szumu to integer PCG zaimplementowany
+**bit-w-bit identycznie w GLSL i JS** — dzięki temu CPU znajduje ekstrema tego
+samego pola i przypina etykiety `H`/`L` z realnymi wartościami hPa dokładnie
+tam, gdzie shader rysuje najciaśniejsze pierścienie (hash z `sin()` rozjeżdża
+się między fp32 GPU a fp64 JS). Strojenie parametrów: strona **`/lab`**
+(suwaki, localStorage), zatwierdzone wartości w `FIELD_DEFAULTS`. Na wierzchu
+bez zmian jedzie warstwa 2D: beacon `QTH` na Polsce, **mały satelita (korpus +
+panele słoneczne)** na orbicie 55° z kreskowanym uplinkiem, pochylanie za
+myszą. Glob **wędruje przez film**: każda scena ma wyreżyserowaną pozę
 (`POSES` w `main.ts`), między scenami szybuje z lerpem, a każde cięcie dokręca
 obrót (kierunkowy, wygasający „kick"). Podczas `SEEK` wszystko przechodzi
-w bursztyn i drży. Na mobile ukryty.
+w bursztyn i drży. Bez WebGL2 fallback do dawnej siatki rysowanej na canvasie
+2D. Na mobile ukryty.
+
+**Mapa sieci (eksperyment, aktualnie aktywna):** glob zastąpiła **konstelacja**
+(`meshmap.ts` + strojenie na `/mesh`): triangulowana tkanina ~200 wędrujących
+punktów (Delaunay przeliczany na żywo co 400 ms, crossfade topologii — zero
+przecięć), w którą wplecione są projekty jako podpisane stacje (chip, kanał,
+kropka statusu) połączone każda z każdą + nazwane linki z prawdziwych relacji
+(`1.8 KM AIR GAP`, `PROTO BENCH`…). Każde cięcie filmu = lot kamery: odjazd nad
+całą sieć i nurkowanie w następną stację (scena BRIEF = widok całości); po
+dolocie kamera płynie razem z wędrującym węzłem. Kursor odpycha punkty, SEEK
+barwi całość na bursztyn. Przełącznik warstw: `GLOBE_LAYER` / `MESH_LAYER`
+w `main.ts` — kod globu pozostaje w całości.
 
 **Model sterowania (fullpage):** w trybie filmu nie ma natywnego scrolla —
 gest (wheel/touch/klawiatura) tylko *wyzwala* cięcie, a animacja gra własną,

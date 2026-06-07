@@ -424,19 +424,17 @@ button {
 }
 
 #cursor .c-ring {
-  --rs: 34px;
   position: absolute;
-  left: calc(var(--rs) / -2);
-  top: calc(var(--rs) / -2);
-  width: var(--rs);
-  height: var(--rs);
+  left: -17px;
+  top: -17px;
+  width: 34px;
+  height: 34px;
   border: 1px solid rgba(230, 242, 230, 0.35);
   border-radius: 50%;
+  /* grows via scale, not the box model — the compositor does all the work
+     (width/height/left/top would re-layout on every link hover) */
   transition:
-    width 0.25s,
-    height 0.25s,
-    left 0.25s,
-    top 0.25s,
+    scale 0.25s,
     border-color 0.25s;
 }
 
@@ -463,7 +461,7 @@ button {
 }
 
 #cursor.is-link .c-ring {
-  --rs: 52px;
+  scale: 1.53; /* 34px -> ~52px, same visual as before */
   border-color: var(--green);
 }
 
@@ -571,6 +569,25 @@ html.film-on .scene {
   height: 100svh;
   border-top: 0;
   visibility: hidden;
+  /* at rest the scene rides ABOVE the constellation canvas (z 48) with a
+     transparent background — the net shows through, UNDER the type; the
+     flat page colour comes from body, so nothing visibly changes */
+  z-index: 51;
+  background: transparent;
+}
+
+/* during a cut the film drops back under the canvas and turns opaque:
+   the camera flight plays OVER the signal chaos and the sliding planes
+   stay solid (transparent planes would let scenes bleed through) */
+html.film-on.cutting .scene {
+  z-index: auto;
+  background: var(--bg);
+}
+
+/* promote only the pair participating in the cut — the engine sets
+   data-state on the current and incoming scenes; the hidden seven
+   don't need viewport-sized GPU layers reserved */
+html.film-on .scene[data-state] {
   will-change: transform, clip-path, opacity, filter;
 }
 
@@ -652,6 +669,13 @@ html.film-on .hud {
   color: var(--ink);
 }
 
+/* reserved slot for the longest scene name — the tuner cluster to the right
+   must not shift when the label swaps mid-cut; swap rides a short fade */
+.hud .name {
+  min-width: 13ch; /* "SENSOR LAB" + its 0.16em letter-spacing */
+  transition: opacity 0.075s linear;
+}
+
 /* ---------- scene: hero ---------- */
 
 .scene-hero {
@@ -702,8 +726,31 @@ html.film-on .hud {
   pointer-events: none;
 }
 
+/* synoptic field — WebGL isobar sphere riding under the 2D instrument layer;
+   a square canvas moved per-frame via transform (sized from JS) */
+#synoptic {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 49;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* network map — the constellation the film flies through (meshmap.ts) */
+#meshmap {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 48;
+  pointer-events: none;
+}
+
 @media (max-width: 760px) {
-  #globe {
+  #globe,
+  #synoptic,
+  #meshmap {
     display: none;
   }
 }
@@ -761,12 +808,15 @@ html.film-on .hud {
   color: var(--green);
 }
 
+/* a deliberate legend block: one status per line, hugging the text's
+   left edge — not a loose strip strewn across the whole viewport */
 .legend {
   display: flex;
-  flex-wrap: wrap;
-  gap: 12px 36px;
+  flex-direction: column;
+  gap: 12px;
   list-style: none;
   margin-top: clamp(32px, 7vh, 72px);
+  max-width: max-content;
 }
 
 .legend li {
