@@ -7,7 +7,22 @@ const nav = [
 ---
 
 <header class="site-header">
-  <a class="brand" href="#top" data-scene="0">MIKO®</a>
+  <a class="brand" href="#top" data-scene="0" aria-label="MIKO — on air">
+    <!-- inline brand wordmark (public/brand/logo.svg), currentColor so it survives the difference blend -->
+    <svg viewBox="28 27 422 107" aria-hidden="true">
+      <g transform="translate(30,30)">
+        <polygon fill="currentColor" points="0,0 28,0 56,48 84,0 112,0 112,100 86,100 86,42 65,76 47,76 26,42 26,100 0,100"/>
+        <rect fill="currentColor" x="130" y="0" width="26" height="100"/>
+        <polygon fill="currentColor" points="174,0 200,0 200,34 234,0 270,0 230,50 270,100 234,100 200,66 200,100 174,100"/>
+        <circle cx="333" cy="50" r="38.5" fill="none" stroke="currentColor" stroke-width="26"/>
+        <circle class="lamp" cx="333" cy="50" r="11.5" fill="var(--green)"/>
+        <g transform="translate(404,4)" stroke="currentColor" fill="none" stroke-width="1.6">
+          <circle cx="6" cy="6" r="6.5"/>
+          <path d="M3.8,9.5 V2.5 H6.6 a1.9,1.9 0 0 1 0,3.8 H3.8 M6.2,6.3 L8.6,9.5"/>
+        </g>
+      </g>
+    </svg>
+  </a>
 
   <div class="header-mid label">
     <span>QTH PL</span>

@@ -159,11 +159,14 @@ button {
 }
 
 .brand {
-  font-family: var(--font-display);
-  font-weight: 900;
-  font-stretch: 125%;
-  font-size: 16px;
-  letter-spacing: 0.01em;
+  display: flex;
+  align-items: center;
+}
+
+.brand svg {
+  display: block;
+  height: 17px;
+  width: auto;
 }
 
 .header-mid {
@@ -506,8 +509,86 @@ button {
   gap: 20px;
 }
 
-.tc-brand {
-  font-size: clamp(40px, 8vw, 110px);
+/* boot logo: MIKO rasterised into ASCII, animated by ascii-logo.ts */
+.tc-brand-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+}
+
+.tc-brand-ascii {
+  margin: 0;
+  font-family: var(--font-mono);
+  font-size: clamp(9px, 1.9vw, 20px);
+  line-height: 1;
+  letter-spacing: 0;
+  white-space: pre;
+  color: var(--green);
+  min-height: 7em; /* hold space for the 7-row grid before JS fills it */
+}
+
+.tc-reg {
+  margin-left: 0.4em;
+  font-family: var(--font-mono);
+  font-size: clamp(10px, 1.1vw, 15px);
+  color: var(--dim);
+}
+
+/* ---------- per-scene text reveals (reveals.ts) ---------- */
+
+.rv-ch {
+  display: inline-block;
+  white-space: pre;
+  will-change: transform, opacity;
+}
+
+.rv-clip {
+  display: inline-block;
+  overflow: hidden;
+  vertical-align: bottom;
+}
+
+.rv-clip > span {
+  display: inline-block;
+  will-change: transform;
+}
+
+.rv-cursor {
+  display: inline-block;
+  width: 0.5ch;
+  background: var(--green);
+  margin-left: 2px;
+  animation: rv-blink 1s steps(1) infinite;
+}
+
+@keyframes rv-blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.rv-beam {
+  position: relative;
+  display: inline-block;
+}
+
+.rv-beam-bar {
+  position: absolute;
+  top: -2%;
+  left: 0;
+  width: 3px;
+  height: 104%;
+  background: var(--green);
+}
+
+/* JS-driven scenes: let the big title be revealed by script, not the mask */
+.scene.rv-js .mask {
+  overflow: visible;
+}
+
+.scene.rv-js .mask-inner {
+  transform: none;
+  transition: none;
 }
 
 /* ---------- masked title reveals ---------- */

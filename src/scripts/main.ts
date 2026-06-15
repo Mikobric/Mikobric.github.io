@@ -1,5 +1,6 @@
 import { FIELD_DEFAULTS, createSynoptic, createExtremaTracker } from './synoptic';
 import { MESH_DEFAULTS, createMeshMap } from './meshmap';
+import { revealElement, type RevealStyle } from './reveals';
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -35,11 +36,14 @@ function decode(el: HTMLElement, duration = 800): void {
   requestAnimationFrame(tick);
 }
 
-/* hero lines — decode staggered, fired on load or after the title card */
+/* hero lines — revealed staggered with the opening scene's style (flicker),
+   fired on load or after the title card */
 function runHeroDecode(): void {
+  const heroStyle = (document.getElementById('top')?.dataset.reveal as RevealStyle) ?? 'flicker';
   document.querySelectorAll<HTMLElement>('[data-decode]').forEach((el) => {
     const delay = Number(el.dataset.decodeDelay ?? 0);
-    setTimeout(() => decode(el, 900), 150 + delay);
+    el.style.opacity = '0';
+    revealElement(el, heroStyle, 150 + delay);
   });
 }
 
@@ -409,8 +413,20 @@ if (!filmMode) {
       }, 75);
     }
     if (!scene.classList.contains('on')) {
+      const style = (scene.dataset.reveal as RevealStyle) ?? 'rise';
       scene.classList.add('on');
-      scene.querySelectorAll<HTMLElement>('[data-scramble]').forEach((el) => decode(el, 550));
+      /* non-rise styles drive the big title from JS — neutralise the CSS mask */
+      if (style !== 'rise') scene.classList.add('rv-js');
+      scene.querySelectorAll<HTMLElement>('[data-scramble]').forEach((el, i) => {
+        el.style.opacity = '0';
+        revealElement(el, style, i * 90);
+      });
+      if (style !== 'rise') {
+        scene.querySelectorAll<HTMLElement>('.mask-inner').forEach((el, i) => {
+          el.style.opacity = '0';
+          revealElement(el, style, 140 + i * 120);
+        });
+      }
     }
   };
 

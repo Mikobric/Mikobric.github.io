@@ -27,7 +27,10 @@ const legend = [
 
 <div class="titlecard" id="titlecard" aria-hidden="true">
   <div class="tc-inner">
-    <span class="tc-brand display tc-decode">MIKO®</span>
+    <span class="tc-brand-wrap">
+      <pre class="tc-brand-ascii" id="tc-ascii" aria-label="MIKO"></pre>
+      <span class="tc-reg" aria-hidden="true">®</span>
+    </span>
     <span class="label tc-decode">SIG/2026 — A TRANSMISSION IN NINE SCENES</span>
   </div>
 </div>
@@ -58,7 +61,13 @@ const legend = [
 
 <div class="film">
   <!-- 01 · opening -->
-  <section class="scene scene-hero" data-name="OPENING" data-freq="433.920 MHZ" id="top">
+  <section
+    class="scene scene-hero"
+    data-name="OPENING"
+    data-freq="433.920 MHZ"
+    data-reveal="flicker"
+    id="top"
+  >
     <div class="hero-meta label">
       <span data-scramble>SIG/2026</span>
       <span data-scramble>QTH: PL</span>
@@ -101,6 +110,7 @@ const legend = [
     data-fx="vroll"
     data-name="BRIEF"
     data-freq="144.300 MHZ"
+    data-reveal="rise"
     id="brief"
   >
     <div class="scene-head">
@@ -133,6 +143,7 @@ const legend = [
         data-fx={['swap', 'sweep', 'collapse', 'tear', 'ghost'][i % 5]}
         data-name={p.title}
         data-freq={workFreqs[i % 5]}
+        data-reveal={['beam', 'stagger', 'type', 'rise', 'beam'][i % 5]}
         id={i === 0 ? 'works' : undefined}
         style={`--p1: ${p.palette[0]}; --p2: ${p.palette[1]}; --tint: ${p.palette[0]}`}
       >
@@ -191,6 +202,7 @@ const legend = [
     data-fx="roll"
     data-name="LOG"
     data-freq="77.500 KHZ"
+    data-reveal="type"
     id="log"
   >
     <div class="scene-head">
@@ -232,6 +244,7 @@ const legend = [
     data-fx="carrier"
     data-name="CONTACT"
     data-freq="1.420 GHZ"
+    data-reveal="stagger"
     id="contact"
   >
     <div class="scene-head">
