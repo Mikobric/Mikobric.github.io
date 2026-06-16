@@ -480,6 +480,83 @@ button {
   border-color: rgba(255, 176, 0, 0.5);
 }
 
+/* ---------- alternate cursor: targeting reticle (toggled in the header) ----------
+   four corner brackets that idle-spin and snap to frame interactive targets.
+   Default cursor is the ring above; .target-mode swaps to the corners. */
+#cursor .c-frame {
+  display: none;
+}
+
+#cursor.target-mode .c-ring {
+  display: none;
+}
+
+#cursor.target-mode .c-frame {
+  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  animation: cursor-spin 4s linear infinite;
+}
+
+/* locked onto a target (or seeking) — corners are JS-driven, kill the spin */
+#cursor.target-mode.is-link .c-frame,
+#cursor.target-mode.seeking .c-frame {
+  animation: none;
+}
+
+@keyframes cursor-spin {
+  to {
+    rotate: 360deg;
+  }
+}
+
+#cursor .c-corner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 9px;
+  height: 9px;
+  border: 1px solid rgba(230, 242, 230, 0.5);
+  /* corners move via translate so the compositor does the work; this
+     transition carries the snap to a target and the parallax on move */
+  transition:
+    translate 0.18s cubic-bezier(0.2, 0.9, 0.2, 1),
+    border-color 0.2s;
+}
+
+/* idle resting square (~22px) — each corner shows only its two outer edges */
+#cursor .c-tl {
+  translate: -11px -11px;
+  border-right: none;
+  border-bottom: none;
+}
+#cursor .c-tr {
+  translate: 2px -11px;
+  border-left: none;
+  border-bottom: none;
+}
+#cursor .c-br {
+  translate: 2px 2px;
+  border-left: none;
+  border-top: none;
+}
+#cursor .c-bl {
+  translate: -11px 2px;
+  border-right: none;
+  border-top: none;
+}
+
+#cursor.target-mode.is-link .c-corner {
+  border-color: var(--green);
+}
+
+#cursor.target-mode.seeking .c-corner {
+  border-color: rgba(255, 176, 0, 0.6);
+}
+
 /* ---------- title card (opening, once per session) ---------- */
 
 .titlecard {

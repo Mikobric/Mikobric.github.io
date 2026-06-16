@@ -211,6 +211,14 @@ if (!filmMode) {
   const cursorEl = lite ? null : document.getElementById('cursor');
   const cursorDot = cursorEl?.querySelector<HTMLElement>('.c-dot') ?? null;
   const cursorRing = cursorEl?.querySelector<HTMLElement>('.c-ring') ?? null;
+  const corners = cursorEl
+    ? Array.from(cursorEl.querySelectorAll<HTMLElement>('.c-corner'))
+    : [];
+
+  /* default cursor is the ring; the header "Target" toggle flips on the
+     corner-bracket reticle. setReticle is wired up by that toggle below. */
+  let targetMode = false;
+  let setReticle: ((on: boolean) => void) | null = null;
 
   if (cursorEl) {
     let mx = window.innerWidth / 2;
@@ -218,6 +226,9 @@ if (!filmMode) {
     let ringX = mx;
     let ringY = my;
     let ringRaf = false;
+    let locked: Element | null = null;
+    const PAD = 4; // breathing room outside the target rect
+    const C = 9; // corner size, must match .c-corner in CSS
 
     const ringLoop = (): void => {
       ringX += (mx - ringX) * 0.16;
@@ -232,6 +243,25 @@ if (!filmMode) {
       }
     };
 
+    /* drive the four corners out to frame a target's rect (cursor-relative);
+       the CSS translate transition carries the snap and the parallax on move */
+    const frameTo = (el: Element): void => {
+      const r = el.getBoundingClientRect();
+      const pos: [number, number][] = [
+        [r.left - PAD, r.top - PAD], // tl
+        [r.right + PAD - C, r.top - PAD], // tr
+        [r.right + PAD - C, r.bottom + PAD - C], // br
+        [r.left - PAD, r.bottom + PAD - C], // bl
+      ];
+      corners.forEach((c, i) => {
+        c.style.translate = `${(pos[i]![0] - mx).toFixed(1)}px ${(pos[i]![1] - my).toFixed(1)}px`;
+      });
+    };
+
+    const unframe = (): void => {
+      for (const c of corners) c.style.translate = ''; // back to idle square
+    };
+
     window.addEventListener(
       'mousemove',
       (e: MouseEvent) => {
@@ -239,7 +269,9 @@ if (!filmMode) {
         my = e.clientY;
         cursorEl.style.transform = `translate(${mx}px, ${my}px)`;
         cursorEl.classList.add('show');
-        if (!ringRaf) {
+        if (targetMode) {
+          if (locked) frameTo(locked);
+        } else if (!ringRaf) {
           ringRaf = true;
           requestAnimationFrame(ringLoop);
         }
@@ -247,11 +279,27 @@ if (!filmMode) {
       { passive: true },
     );
 
-    /* ring tightens on interactive targets */
+    /* ring tightens — or corners snap — on interactive targets */
     document.addEventListener('mouseover', (e: MouseEvent) => {
       const hit = (e.target as Element | null)?.closest?.('a, button') ?? null;
+      if (hit !== locked) {
+        locked = hit;
+        if (targetMode) {
+          if (hit) frameTo(hit);
+          else unframe();
+        }
+      }
       cursorEl.classList.toggle('is-link', hit !== null);
     });
+
+    /* keep corners glued while the page scrolls under a locked target */
+    window.addEventListener(
+      'scroll',
+      () => {
+        if (targetMode && locked) frameTo(locked);
+      },
+      { passive: true },
+    );
 
     document.documentElement.addEventListener('mouseleave', () =>
       cursorEl.classList.remove('show'),
@@ -259,6 +307,18 @@ if (!filmMode) {
     document.documentElement.addEventListener('mouseenter', () =>
       cursorEl.classList.add('show'),
     );
+
+    setReticle = (on: boolean): void => {
+      targetMode = on;
+      cursorEl.classList.toggle('target-mode', on);
+      if (on) {
+        if (locked) frameTo(locked);
+        else unframe();
+      } else if (!ringRaf) {
+        ringRaf = true;
+        requestAnimationFrame(ringLoop);
+      }
+    };
   }
 
   /* ---- the cuts: every swipe is a different way of losing the signal ---- */
@@ -783,6 +843,23 @@ if (!filmMode) {
     if (localStorage.getItem('miko-afterglow') === '1') setEgg(true);
   } else {
     eggBtn?.remove();
+  }
+
+  /* ---- targeting-reticle cursor toggle (alternate to the scope ring) ---- */
+  const reticleBtn = document.getElementById('reticle-toggle');
+  if (reticleBtn && setReticle && !lite) {
+    const applyReticle = (on: boolean): void => {
+      setReticle!(on);
+      localStorage.setItem('miko-target-cursor', on ? '1' : '0');
+      reticleBtn.setAttribute('aria-pressed', String(on));
+      reticleBtn.classList.toggle('on', on);
+    };
+    reticleBtn.addEventListener('click', () =>
+      applyReticle(reticleBtn.getAttribute('aria-pressed') !== 'true'),
+    );
+    if (localStorage.getItem('miko-target-cursor') === '1') applyReticle(true);
+  } else {
+    reticleBtn?.remove();
   }
 
   /* ---- 3D: wireframe globe — a travelling companion through the film ----
